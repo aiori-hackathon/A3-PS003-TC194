@@ -1,0 +1,4 @@
+This video presents our AIORI-3 Hackathon project, PS-003: Federated Traffic-Flow Prediction with Communication-Cost Evaluation.
+We use Federated Learning and GRU models to predict traffic flow while evaluating prediction accuracy, convergence, and communication costs under IID and Non-IID settings.
+
+https://youtu.be/JXDxxuilIW4
