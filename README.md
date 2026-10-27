@@ -1,7 +1,7 @@
 # NeuroForge · Federated Traffic-Flow Prediction with Communication-Cost Evaluation
 
 **AIORI Hackathon 3 · Smart Cities · PS-003 · Team NeuroForge (A3-PS003-TC194)**
-***https://neuroforge-a3-ps003-tc194.netlify.app***
+## https://neuroforge-a3-ps003-tc194.netlify.app
 
 A reproducible simulator that answers one question with real data:
 
