@@ -1,0 +1,686 @@
+<title>NeuroForge FedTraffic</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* Layout: a single scrolling "control room" — status strip, replay console, then evidence sections in a 12-col grid.
+   Palette borrowed from California freeway signage (METR-LA is Los Angeles): sign green, reflective white, asphalt, signal amber. */
+:root{
+  --bg:#f3f4f1; --panel:#ffffff; --ink:#18201c; --muted:#5d6862; --line:#d9ddd7;
+  --sign:#0b6b46; --sign-ink:#ffffff; --amber:#d48a00; --red:#c2410c; --blue:#1d4ed8; --violet:#6d28d9; --teal:#0f766e;
+  --chip:#e7ece7;
+  --f-display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101412; --panel:#171d1a; --ink:#e7ece8; --muted:#9aa59f; --line:#2a332e;
+  --sign:#14a06a; --sign-ink:#06140d; --amber:#f2b33d; --red:#fb7a4a; --blue:#6f9bff; --violet:#a78bfa; --teal:#2dd4bf; --chip:#222b26; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101412; --panel:#171d1a; --ink:#e7ece8; --muted:#9aa59f; --line:#2a332e;
+  --sign:#14a06a; --sign-ink:#06140d; --amber:#f2b33d; --red:#fb7a4a; --blue:#6f9bff; --violet:#a78bfa; --teal:#2dd4bf; --chip:#222b26; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15.5px;line-height:1.5;margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:.2px}
+h1{font-size:clamp(30px,5vw,46px);line-height:1.02;font-weight:700}
+h2{font-size:26px;font-weight:600;margin-bottom:6px}
+h3{font-size:19px;font-weight:600}
+p{margin:0}
+.lede{color:var(--muted);max-width:68ch}
+.mono,.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-family:var(--f-display);text-transform:uppercase;letter-spacing:1.6px;font-size:13px;color:var(--muted);font-weight:600}
+.sign{background:var(--sign);color:var(--sign-ink);border-radius:10px;padding:18px 20px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:end;border:3px solid var(--sign);box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--sign-ink) 70%,transparent)}
+.sign .eyebrow{color:color-mix(in srgb,var(--sign-ink) 80%,transparent)}
+.sign .shield{font-family:var(--f-display);font-weight:700;font-size:15px;border:2px solid var(--sign-ink);border-radius:6px;padding:4px 9px;white-space:nowrap}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{background:color-mix(in srgb,var(--sign-ink) 14%,transparent);border-radius:20px;padding:3px 11px;font-size:13.5px}
+section{margin-top:30px}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;min-width:0}
+.s4{grid-column:span 4}.s5{grid-column:span 5}.s6{grid-column:span 6}.s7{grid-column:span 7}.s8{grid-column:span 8}.s12{grid-column:span 12}
+@media (max-width:860px){.s4,.s5,.s6,.s7,.s8{grid-column:span 12}.sign{grid-template-columns:1fr}}
+.kpi{display:flex;flex-direction:column;gap:2px}
+.kpi .v{font-family:var(--f-display);font-size:38px;font-weight:700;line-height:1}
+.kpi .d{font-size:13.5px;color:var(--muted)}
+.delta{font-family:var(--f-mono);font-size:13px;padding:1px 7px;border-radius:10px;background:var(--chip)}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{all:unset;cursor:pointer;padding:6px 12px;font-size:14px;font-family:var(--f-body)}
+.seg button[aria-pressed="true"]{background:var(--sign);color:var(--sign-ink)}
+.seg button:focus-visible,.btn:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.btn{all:unset;cursor:pointer;background:var(--amber);color:#1b1300;font-weight:600;padding:7px 16px;border-radius:8px;font-family:var(--f-body)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+label{font-size:14px;color:var(--muted)}
+input[type=range]{accent-color:var(--sign);width:100%}
+select{font:inherit;padding:5px 8px;border-radius:7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.stage{position:relative;width:100%;aspect-ratio:16/8.4;max-width:100%}
+.stage svg{width:100%;height:100%;display:block}
+.readout{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:10px}
+.readout div{background:var(--chip);border-radius:8px;padding:8px 10px}
+.readout b{display:block;font-family:var(--f-mono);font-size:17px}
+.readout span{font-size:12.5px;color:var(--muted)}
+@media (max-width:560px){.readout{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tablebox{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--f-display);font-size:15px;letter-spacing:.3px;font-weight:600}
+td.n{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.hl td{background:color-mix(in srgb,var(--sign) 9%,transparent)}
+.pill{display:inline-block;border-radius:10px;padding:0 8px;font-size:12.5px;font-weight:600}
+.pill.core{background:color-mix(in srgb,var(--sign) 18%,transparent);color:var(--sign)}
+.pill.ext{background:color-mix(in srgb,var(--amber) 22%,transparent);color:color-mix(in srgb,var(--amber) 70%,var(--ink))}
+.callout{border-left:4px solid var(--amber);padding:8px 12px;background:color-mix(in srgb,var(--amber) 8%,transparent);border-radius:0 8px 8px 0;font-size:14.5px}
+pre{background:var(--chip);border-radius:8px;padding:12px;overflow-x:auto;font-family:var(--f-mono);font-size:12.8px;line-height:1.45;margin:0}
+.chart{position:relative;height:300px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+ul.tight{margin:6px 0 0;padding-left:18px}
+ol.findings{margin:8px 0 0;padding-left:22px;display:grid;gap:6px;max-width:100ch}
+ol.findings b{font-family:var(--f-display);font-size:17px;font-weight:600}
+#resTable td:first-child{min-width:190px}
+ul.tight li{margin:3px 0}
+footer{margin-top:36px;color:var(--muted);font-size:13.5px}
+/* top nav */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.nav .in{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:8px;display:flex;gap:14px;align-items:center;overflow-x:auto;white-space:nowrap}
+.nav .brand{font-family:var(--f-display);font-weight:700;font-size:18px;letter-spacing:.4px;color:var(--sign)}
+.nav a{color:var(--muted);text-decoration:none;font-size:14px;padding:4px 8px;border-radius:6px}
+.nav a:hover,.nav a:focus-visible{background:var(--chip);color:var(--ink)}
+/* hero */
+.hero{background:var(--sign);color:var(--sign-ink);border-radius:14px;padding:26px 24px 22px;border:3px solid var(--sign);box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--sign-ink) 70%,transparent);display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:22px;align-items:center}
+.hero .eyebrow{color:color-mix(in srgb,var(--sign-ink) 82%,transparent)}
+.hero h1{font-size:clamp(34px,5.4vw,58px);line-height:.98;margin-top:6px}
+.hero p.sub{margin-top:10px;font-size:17px;max-width:58ch;color:color-mix(in srgb,var(--sign-ink) 90%,transparent)}
+.hero .cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.hero .cta a{all:unset;cursor:pointer;font-weight:600;padding:8px 16px;border-radius:8px;font-family:var(--f-body)}
+.hero .cta a.primary{background:var(--amber);color:#1b1300}
+.hero .cta a.secondary{border:2px solid var(--sign-ink);color:var(--sign-ink)}
+.hero .cta a:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.impact{display:grid;gap:10px}
+.impact div{border:2px solid color-mix(in srgb,var(--sign-ink) 75%,transparent);border-radius:10px;padding:10px 14px;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:center}
+.impact b{font-family:var(--f-display);font-size:44px;line-height:1;font-weight:700;font-variant-numeric:tabular-nums;grid-row:span 2}
+.impact span{font-size:14.5px;line-height:1.3}
+.impact small{font-size:12.5px;opacity:.85}
+@media (max-width:860px){.hero{grid-template-columns:1fr}}
+/* explorer */
+.usp{display:inline-block;background:var(--amber);color:#1b1300;font-family:var(--f-display);font-weight:700;letter-spacing:1px;font-size:13px;padding:2px 9px;border-radius:5px;margin-right:8px}
+.exmap{width:100%;aspect-ratio:1/0.92;max-width:100%}
+.exmap svg{width:100%;height:100%;display:block}
+.exmap circle.s{cursor:pointer}
+.exmap circle.s:focus-visible{outline:none;stroke:var(--amber);stroke-width:3}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}
+.stats div{background:var(--chip);border-radius:8px;padding:8px 10px;min-width:0}
+.stats b{display:block;font-family:var(--f-mono);font-size:18px}
+.stats span{font-size:12.5px;color:var(--muted)}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;padding:3px 10px;border-radius:14px;background:var(--chip)}
+.badge i{width:10px;height:10px;border-radius:50%;display:inline-block}
+@media (max-width:560px){.stats{grid-template-columns:1fr}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<nav class="nav" aria-label="Sections"><div class="in">
+  <span class="brand">NeuroForge · FedTraffic</span>
+  <a href="#explorer">Live forecast</a><a href="#replay">Replay training</a><a href="#bytes">Accuracy per byte</a>
+  <a href="#results">Results</a><a href="#planner">Cost planner</a><a href="#how">How it works</a>
+</div></nav>
+<div class="wrap">
+  <header class="hero" role="banner">
+    <div>
+      <div class="eyebrow">AIORI Hackathon 3 · Smart Cities · PS-003 · Team NeuroForge · A3-PS003-TC194</div>
+      <h1 id="heroTitle">Same forecast. Less traffic on the network.</h1>
+      <p class="sub">Four simulated intersections in Los Angeles train one speed forecaster together with Federated Averaging. Their raw sensor readings never leave them, and we count every byte that does.</p>
+      <div class="chips" id="chips"></div>
+      <div class="cta"><a class="primary" href="#explorer">Try the live forecast ↓</a><a class="secondary" href="#replay">Watch federated training ↓</a></div>
+    </div>
+    <div class="impact" id="impact" aria-label="Headline numbers"></div>
+  </header>
+
+  <section aria-labelledby="h-explorer" id="explorer">
+    <div class="grid">
+      <div class="panel s12">
+        <div class="eyebrow"><span class="usp">USP</span>Real trained models, running in your browser</div>
+        <h2 id="h-explorer">Pick any sensor and compare the federated forecast with reality</h2>
+        <p class="lede">The page carries the two GRU models trained in our experiments (seed 11, 3,747 parameters each) and runs them here, step by step, on two unseen test days: Tuesday 12 and Wednesday 13 June 2012. The <b>federated</b> model was trained without ever seeing this intersection's raw data; the <b>centralised</b> model saw everything. Click a dot on the map.</p>
+      </div>
+      <div class="panel s5">
+        <div class="controls" style="margin-top:0">
+          <span class="badge" id="exBadge"></span>
+          <button class="btn ghost" id="exRandom">Show a congested sensor</button>
+        </div>
+        <div class="exmap"><svg id="exmap" viewBox="0 0 500 460" role="img" aria-label="Map of METR-LA sensors; select one to forecast"></svg></div>
+        <p style="font-size:13px;color:var(--muted)">Colours are the four non-IID clients. Ring = selected sensor. Use Tab and Enter to select with the keyboard.</p>
+      </div>
+      <div class="panel s7">
+        <div class="controls" style="margin-top:0">
+          <div class="seg" role="group" aria-label="Forecast horizon" id="segH">
+            <button data-v="1" aria-pressed="false">+5 min</button>
+            <button data-v="2" aria-pressed="false">+10 min</button>
+            <button data-v="3" aria-pressed="true">+15 min</button>
+          </div>
+          <span style="font-size:13.5px;color:var(--muted)" id="exTitle"></span>
+        </div>
+        <div class="chart" style="height:330px"><canvas id="exChart" aria-label="Measured speed and forecasts over two days"></canvas></div>
+        <div class="stats">
+          <div><span>Federated model · MAE on this sensor</span><b id="exF">–</b></div>
+          <div><span>Centralised model · MAE on this sensor</span><b id="exC">–</b></div>
+          <div><span>Raw readings this client uploaded</span><b>0 bytes</b></div>
+        </div>
+        <p class="callout" style="margin-top:10px" id="exNote"></p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-found">
+    <div class="panel">
+      <div class="eyebrow">Outcome · seeds 11, 22, 33 · frozen test period</div>
+      <h2 id="h-found">What we found</h2>
+      <ol class="findings" id="findings"></ol>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-replay" id="replay">
+    <div class="grid">
+      <div class="panel s8">
+        <div class="eyebrow">Replay a logged run</div>
+        <h2 id="h-replay">Four intersections, one global model</h2>
+        <p class="lede">Each dot is a METR-LA loop detector, coloured by the simulated client that owns it. Press play to replay the logged FedAvg rounds: weights go down to every client, updates come back, and the server averages them. Raw readings never move.</p>
+        <div class="controls">
+          <div class="seg" role="group" aria-label="Partition" id="segPart">
+            <button data-v="iid" aria-pressed="false">IID</button>
+            <button data-v="noniid" aria-pressed="true">Non-IID (geographic)</button>
+            <button data-v="speed" aria-pressed="false">Strong non-IID</button>
+          </div>
+          <div class="seg" role="group" aria-label="Upload codec" id="segCodec">
+            <button data-v="fp32" aria-pressed="true">FP32</button>
+            <button data-v="int8" aria-pressed="false">INT8 upload</button>
+          </div>
+          <button class="btn" id="play">▶ Play 50 rounds</button>
+          <button class="btn ghost" id="reset">Reset</button>
+        </div>
+        <div class="stage"><svg id="stage" viewBox="0 0 800 420" role="img" aria-label="Map of sensors grouped into four clients around a central server"></svg></div>
+        <div class="readout">
+          <div><span>Round</span><b id="rRound">0 / 50</b></div>
+          <div><span>Validation MAE</span><b id="rMae">–</b></div>
+          <div><span>Bytes this round</span><b id="rB">–</b></div>
+          <div><span>Cumulative</span><b id="rCum">–</b></div>
+        </div>
+      </div>
+      <div class="panel s4">
+        <div class="eyebrow">Same replay, as a curve</div>
+        <h3>Validation error vs round</h3>
+        <div class="chart" style="height:250px"><canvas id="replayChart" aria-label="Validation MAE by round"></canvas></div>
+        <p style="font-size:13.5px;color:var(--muted);margin-top:8px">Seed-mean of seeds 11, 22, 33. The dashed line is 1.01 × the best centralised validation MAE (the 1% target).</p>
+        <div style="margin-top:14px" id="clientStats"></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-bytes" id="bytes">
+    <div class="grid">
+      <div class="panel s7">
+        <div class="eyebrow">RQ3 · RQ4</div>
+        <h2 id="h-bytes">Accuracy per byte</h2>
+        <p class="lede">Validation MAE against cumulative bytes exchanged (log scale). The star is centralised training, which pays its bytes up front by uploading every training reading.</p>
+        <div class="chart"><canvas id="bytesChart" aria-label="Validation MAE against cumulative megabytes"></canvas></div>
+      </div>
+      <div class="panel s5">
+        <div class="eyebrow">Byte accounting check</div>
+        <h3>Logged bytes equal the formula</h3>
+        <div class="tablebox"><table id="byteTable"></table></div>
+        <p class="callout" style="margin-top:12px" id="breakEven"></p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-results" id="results">
+    <div class="panel">
+      <div class="eyebrow">RQ1 · RQ2 · RQ5 — frozen test period, validation-selected checkpoint</div>
+      <h2 id="h-results">Results across three seeds</h2>
+      <div class="tablebox"><table id="resTable"></table></div>
+      <p style="font-size:13.5px;color:var(--muted);margin-top:8px"><span class="pill core">core</span> experiments mandated by PS-003 · <span class="pill ext">extension</span> experiments we added, reported separately · values are mean ± sample std, n = 3.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-plan" id="planner">
+    <div class="grid">
+      <div class="panel s6">
+        <div class="eyebrow">Cost planner</div>
+        <h2 id="h-plan">When does federated pay off?</h2>
+        <p class="lede">Analytic payloads with the same accounting as the simulator. Raw streaming grows with sensors × time; FedAvg grows with model size × clients × rounds.</p>
+        <div class="grid" style="gap:10px;margin-top:10px">
+          <div class="s6"><label for="pK">Clients K: <b class="mono" id="vK"></b></label><input id="pK" type="range" min="2" max="40" value="4"></div>
+          <div class="s6"><label for="pN">Sensors: <b class="mono" id="vN"></b></label><input id="pN" type="range" min="10" max="3000" step="1" value="207"></div>
+          <div class="s6"><label for="pH">GRU hidden size: <b class="mono" id="vH"></b></label><input id="pH" type="range" min="0" max="4" value="2"></div>
+          <div class="s6"><label for="pR">Rounds per retrain: <b class="mono" id="vR"></b></label><input id="pR" type="range" min="5" max="200" step="5" value="50"></div>
+          <div class="s6"><label for="pD">Retrain every: <b class="mono" id="vD"></b></label><input id="pD" type="range" min="1" max="30" value="7"></div>
+          <div class="s6"><label for="pC">Upload codec</label><br><select id="pC"><option>fp32</option><option>fp16</option><option selected>int8</option></select></div>
+        </div>
+        <div class="chart" style="height:240px;margin-top:8px"><canvas id="planChart" aria-label="Cumulative megabytes over 90 days"></canvas></div>
+        <p id="planOut" class="callout" style="margin-top:10px"></p>
+      </div>
+      <div class="panel s6">
+        <div class="eyebrow">Decision support</div>
+        <h2>Best model for a byte budget</h2>
+        <p class="lede">Given a budget, pick the logged checkpoint with the lowest validation MAE among rounds that fit. Selection never looks at the test period.</p>
+        <div class="controls">
+          <label for="bG">Run</label>
+          <select id="bG"></select>
+          <label for="bS">Seed</label>
+          <select id="bS"><option>11</option><option>22</option><option>33</option></select>
+        </div>
+        <label for="bB">Budget: <b class="mono" id="vB"></b></label>
+        <input id="bB" type="range" min="0.1" max="8" step="0.1" value="1">
+        <div class="chart" style="height:220px;margin-top:8px"><canvas id="budgetChart" aria-label="Validation MAE versus cumulative megabytes with budget"></canvas></div>
+        <p id="budgetOut" class="callout" style="margin-top:10px"></p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-how" id="how">
+    <div class="grid">
+      <div class="panel s6">
+        <div class="eyebrow">Method</div>
+        <h2 id="h-how">How the simulator works</h2>
+        <ul class="tight" id="method"></ul>
+      </div>
+      <div class="panel s6">
+        <div class="eyebrow">Core loop (simulate.py)</div>
+        <h3>FedAvg with byte accounting</h3>
+<pre>for t in 1..R:
+    for client c in clients:            # K = 4
+        B += nbytes(w)                  # download  14,988 B
+        w_k = local_train(c, w, E=1)    # data stay in c
+        B += nbytes(w_k) + 8            # upload    14,996 B
+    w = Σ (n_k / n) · w_k               # FedAvg, Eq. (1)
+    log(t, B, val_mae(w), val_rmse(w))
+t* = argmin val_mae → evaluate test once</pre>
+        <h3 style="margin-top:14px">Limitations we state up front</h3>
+        <ul class="tight">
+          <li>METR-LA is aggregated highway speed, not trip logs: privacy is a simulated motivation, not a property of this data.</li>
+          <li>Sharing updates is not a privacy guarantee; no differential privacy or secure aggregation is implemented.</li>
+          <li>Bytes are tensor payloads; TLS/TCP framing and retransmissions are excluded for every method.</li>
+          <li>Training windows are subsampled (one every 2 hours) for the CPU budget; the test period uses every window.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer id="foot"></footer>
+</div>
+
+<script>
+const DATA = /*__DATA__*/null;
+const S = DATA.summary;
+const T = Object.fromEntries(S.table.map(r => [r.group, r]));
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const CLIENT_VARS = ["--blue", "--red", "--teal", "--amber"];
+const GCOL = {central:"--ink", fedavg_iid_E1_fp32:"--blue", fedavg_noniid_E1_fp32:"--red", fedavg_noniid_E1_int8:"--teal",
+  fedavg_noniid_E1_fp16:"--teal", fedavg_iid_E5_fp32:"--violet", fedavg_noniid_E5_fp32:"--violet", fedavg_noniid_E1_fp32_drop25:"--amber",
+  fedavg_speed_E1_fp32:"--red", local_iid_E1_fp32:"--muted", local_noniid_E1_fp32:"--muted"};
+const fmtB = b => b >= 1e6 ? (b/1e6).toFixed(2) + " MB" : b >= 1e3 ? (b/1e3).toFixed(1) + " kB" : b + " B";
+const pm = (a, d=3) => `${a[0].toFixed(d)} ± ${a[1].toFixed(d)}`;
+const sgn = x => Math.abs(x) < 0.0005 ? "±0.000" : (x > 0 ? "+" : "−") + Math.abs(x).toFixed(3);
+const short = l => l.replace(/\s*\((E\d|X\d)\)$/, "");
+
+// ---------- chips + KPIs
+const ds = S.dataset;
+document.getElementById("chips").innerHTML = [
+  `METR-LA · ${ds.shape[1]} sensors · ${ds.shape[0].toLocaleString()} steps`, `${(100*ds.missing_rate).toFixed(2)}% missing (re-measured)`,
+  "GRU(32) · 3,747 params", "FedAvg · K = 4 · R = 50", "seeds 11 · 22 · 33", `${S.analytic_round_bytes.toLocaleString()} B / round ✓`
+].map(t => `<span class="chip">${t}</span>`).join("");
+
+const c = T.central, i = T.fedavg_iid_E1_fp32, n = T.fedavg_noniid_E1_fp32, q8 = T.fedavg_noniid_E1_int8;
+(function impact() {
+  const save = 100 * (1 - n.B_total[0] / c.B_total[0]);
+  const save8 = q8 ? 100 * (1 - q8.B_total[0] / c.B_total[0]) : null;
+  const cost = 100 * (n.mae[0] - c.mae[0]) / c.mae[0];
+  const items = [
+    {v: save, f: x => "−" + x.toFixed(0) + "%", t: "bytes on the network vs uploading raw data", s: `${fmtB(n.B_total[0])} of weights instead of ${fmtB(c.B_total[0])}` + (save8 ? ` · −${save8.toFixed(0)}% with INT8` : "")},
+    {v: cost, f: x => "+" + x.toFixed(1) + "%", t: "forecast error, even with non-IID clients", s: `test MAE ${n.mae[0].toFixed(3)} vs ${c.mae[0].toFixed(3)} mph · 3 seeds`},
+    {v: 207, f: x => x.toFixed(0), t: "sensors whose raw readings stayed local", s: "only model weights crossed the network"},
+  ];
+  const box = document.getElementById("impact");
+  box.innerHTML = items.map((it, k) => `<div><b id="imp${k}">${it.f(it.v)}</b><span>${it.t}</span><small>${it.s}</small></div>`).join("");
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const t0 = performance.now();
+    (function step(now) {
+      const f = Math.min((now - t0) / 1100, 1), e = 1 - Math.pow(1 - f, 3);
+      items.forEach((it, k) => document.getElementById("imp" + k).textContent = it.f(it.v * e));
+      if (f < 1) requestAnimationFrame(step);
+    })(t0);
+  }
+})();
+
+// ---------- findings
+(function () {
+  const L = [], x = T.fedavg_noniid_E1_int8, sp = T.fedavg_speed_E1_fp32, lo = T.local_noniid_E1_fp32;
+  if (c && i && n) L.push(`<b>FedAvg matches centralised accuracy with 30% of the bytes.</b> Test MAE ${c.mae[0].toFixed(3)} (centralised) vs ${i.mae[0].toFixed(3)} (IID) and ${n.mae[0].toFixed(3)} mph (non-IID), for ${fmtB(i.B_total[0])} of weights instead of ${fmtB(c.B_total[0])} of raw readings.`);
+  if (sp) L.push(`<b>Geographic non-IID costs little; strong non-IID costs more.</b> Location-based clients add ${(n.mae[0]-i.mae[0]).toFixed(3)} mph; clients split by speed level add ${(sp.mae[0]-i.mae[0]).toFixed(3)} mph and never reach the 1% target in 50 rounds.`);
+  if (x) L.push(`<b>INT8 update compression is almost free.</b> Traffic falls from ${fmtB(n.B_total[0])} to ${fmtB(x.B_total[0])} (${(100*(1-x.B_total[0]/n.B_total[0])).toFixed(0)}% less) for a ${(x.mae[0]-n.mae[0]).toFixed(3)} mph change.`);
+  if (lo) L.push(`<b>Federation helps the intersections.</b> Training alone gives ${lo.mae[0].toFixed(3)} mph; joining FedAvg lowers it to ${n.mae[0].toFixed(3)} mph.`);
+  L.push(`<b>FedAvg is not automatically cheaper.</b> One 50-round retraining costs as much as ${(50*S.analytic_round_bytes/S.raw_stream_bytes_per_day).toFixed(0)} days of raw streaming, so it saves bandwidth only when models are retrained less often than that.`);
+  document.getElementById("findings").innerHTML = L.map(t => `<li>${t}</li>`).join("");
+})();
+
+// ---------- replay stage
+const svg = document.getElementById("stage");
+const NS = "http://www.w3.org/2000/svg";
+const lat = DATA.coords.map(p => p[0]), lon = DATA.coords.map(p => p[1]);
+const [la0, la1, lo0, lo1] = [Math.min(...lat), Math.max(...lat), Math.min(...lon), Math.max(...lon)];
+const proj = (p) => [40 + (p[1]-lo0)/(lo1-lo0)*480, 30 + (la1-p[0])/(la1-la0)*360];
+const SERVER = [680, 210];
+let part = "noniid", codec = "fp32";
+function el(t, a) { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; }
+function drawStage() {
+  svg.innerHTML = "";
+  const groups = DATA.partitions[part];
+  const cent = groups.map(g => { const pts = g.map(j => proj(DATA.coords[j])); return [pts.reduce((s,p)=>s+p[0],0)/pts.length, pts.reduce((s,p)=>s+p[1],0)/pts.length]; });
+  svg.appendChild(el("rect", {x:20, y:14, width:520, height:392, rx:10, fill:"none", stroke:css("--line")}));
+  const t = el("text", {x:32, y:36, fill:css("--muted"), "font-size":13, "font-family":"Barlow, sans-serif"}); t.textContent = "Los Angeles County loop detectors (METR-LA)"; svg.appendChild(t);
+  groups.forEach((g, k) => {
+    const col = css(CLIENT_VARS[k]);
+    const line = el("line", {x1:cent[k][0], y1:cent[k][1], x2:SERVER[0], y2:SERVER[1], stroke:col, "stroke-opacity":.35, "stroke-width":2, "stroke-dasharray":"4 5"});
+    svg.appendChild(line);
+    g.forEach(j => { const [x, y] = proj(DATA.coords[j]); svg.appendChild(el("circle", {cx:x, cy:y, r:3.6, fill:col, "fill-opacity":.85})); });
+    svg.appendChild(el("circle", {cx:cent[k][0], cy:cent[k][1], r:15, fill:css("--panel"), stroke:col, "stroke-width":3}));
+    const lb = el("text", {x:cent[k][0], y:cent[k][1]+5, "text-anchor":"middle", "font-size":14, "font-weight":700, fill:col, "font-family":"Barlow Condensed, sans-serif"}); lb.textContent = "C" + (k+1); svg.appendChild(lb);
+  });
+  svg.appendChild(el("rect", {x:SERVER[0]-82, y:SERVER[1]-40, width:164, height:80, rx:10, fill:css("--sign")}));
+  const s1 = el("text", {x:SERVER[0], y:SERVER[1]-8, "text-anchor":"middle", fill:css("--sign-ink"), "font-size":18, "font-weight":700, "font-family":"Barlow Condensed, sans-serif"}); s1.textContent = "FedAvg server"; svg.appendChild(s1);
+  const s2 = el("text", {x:SERVER[0], y:SERVER[1]+16, "text-anchor":"middle", fill:css("--sign-ink"), "font-size":13, "font-family":"JetBrains Mono, monospace"}); s2.textContent = "w ← Σ nₖ/n · wₖ"; svg.appendChild(s2);
+  svg._cent = cent;
+  const st = S.heterogeneity[part];
+  document.getElementById("clientStats").innerHTML = `<h3 style="font-size:17px">Clients in this partition</h3><div class="tablebox"><table><tr><th>Client</th><th>Sensors</th><th>Mean mph</th><th>&lt; 40 mph</th></tr>` +
+    st.map((s,k)=>`<tr><td><span style="color:var(${CLIENT_VARS[k]});font-weight:700">C${s.client}</span></td><td class="n">${s.sensors}</td><td class="n">${s.mean_speed}</td><td class="n">${(100*s.share_congested).toFixed(1)}%</td></tr>`).join("") + `</table></div>`;
+}
+function packet(from, to, col, dur) {
+  const p = el("circle", {r:5, fill:col, cx:from[0], cy:from[1]});
+  svg.appendChild(p);
+  const t0 = performance.now();
+  (function step(now) {
+    const f = Math.min((now - t0) / dur, 1);
+    p.setAttribute("cx", from[0] + (to[0]-from[0])*f); p.setAttribute("cy", from[1] + (to[1]-from[1])*f);
+    if (f < 1) requestAnimationFrame(step); else p.remove();
+  })(t0);
+}
+const groupKey = () => part === "speed" ? "fedavg_speed_E1_fp32" : `fedavg_${part}_E1_${codec}`;
+let timer = null, round = 0;
+const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// replay chart
+const tauSeeds = Object.values(DATA.per_seed.central || {}).map(d => Math.min(...d.val_mae) * 1.01);
+const tau = tauSeeds.length ? tauSeeds.reduce((a,b)=>a+b)/tauSeeds.length : null;
+Chart.defaults.font.family = "Barlow, system-ui, sans-serif";
+Chart.defaults.color = css("--muted");
+Chart.defaults.borderColor = css("--line");
+const replayChart = new Chart(document.getElementById("replayChart"), {
+  type: "line", data: {labels: [], datasets: [
+    {label: "val MAE", data: [], borderColor: css("--red"), pointRadius: 0, borderWidth: 2.5, tension: .25},
+    {label: "target τ", data: [], borderColor: css("--ink"), borderDash: [5,4], pointRadius: 0, borderWidth: 1}]},
+  options: {animation: false, maintainAspectRatio: false, plugins: {legend: {display: false}},
+    scales: {x: {title: {display: true, text: "round"}}, y: {title: {display: true, text: "mph"}}}}
+});
+function setReadout() {
+  const g = S.curves[groupKey()];
+  const has = !!g;
+  document.getElementById("play").disabled = !has;
+  const r = Math.max(round, 0);
+  document.getElementById("rRound").textContent = `${r} / ${has ? g.round.length : 50}`;
+  if (!has) { document.getElementById("rMae").textContent = "not run"; return; }
+  document.getElementById("rMae").textContent = r ? g.val_mae[r-1].toFixed(3) + " mph" : "–";
+  const prev = r > 1 ? g.B_cum[r-2] : 0;
+  document.getElementById("rB").textContent = r ? fmtB(Math.round(g.B_cum[r-1] - prev)) : "–";
+  document.getElementById("rCum").textContent = r ? fmtB(Math.round(g.B_cum[r-1])) : "–";
+  replayChart.data.labels = g.round.slice(0, r);
+  replayChart.data.datasets[0].data = g.val_mae.slice(0, r);
+  replayChart.data.datasets[0].borderColor = css(part === "iid" ? "--blue" : codec === "int8" ? "--teal" : "--red");
+  replayChart.data.datasets[1].data = tau ? g.round.slice(0, r).map(() => tau) : [];
+  replayChart.update();
+}
+function stop() { clearInterval(timer); timer = null; document.getElementById("play").textContent = "▶ Play 50 rounds"; }
+function tick() {
+  const g = S.curves[groupKey()];
+  if (!g || round >= g.round.length) { stop(); return; }
+  round++;
+  if (!reduced) svg._cent.forEach((cpt, k) => {
+    const col = css(CLIENT_VARS[k]);
+    packet(SERVER, cpt, css("--sign"), 260);
+    setTimeout(() => packet(cpt, SERVER, col, 260), 300);
+  });
+  setReadout();
+}
+document.getElementById("play").onclick = () => {
+  if (timer) { stop(); return; }
+  const g = S.curves[groupKey()];
+  if (g && round >= g.round.length) round = 0;
+  document.getElementById("play").textContent = "❚❚ Pause";
+  timer = setInterval(tick, reduced ? 120 : 650); tick();
+};
+document.getElementById("reset").onclick = () => { stop(); round = 0; setReadout(); };
+function seg(id, cb) {
+  document.querySelectorAll(`#${id} button`).forEach(b => b.onclick = () => {
+    document.querySelectorAll(`#${id} button`).forEach(x => x.setAttribute("aria-pressed", x === b)); cb(b.dataset.v);
+  });
+}
+seg("segPart", v => { part = v; stop(); round = 0; drawStage(); setReadout(); });
+seg("segCodec", v => { codec = v; stop(); round = 0; setReadout(); });
+
+// ---------- accuracy per byte
+const byteGroups = ["fedavg_iid_E1_fp32", "fedavg_noniid_E1_fp32", "fedavg_noniid_E1_int8", "fedavg_noniid_E1_fp16", "fedavg_iid_E5_fp32"].filter(g => S.curves[g]);
+const bytesDS = byteGroups.map(g => ({label: short(T[g].label), data: S.curves[g].B_cum.map((b, j) => ({x: b/1e6, y: S.curves[g].val_mae[j]})),
+  borderColor: css(GCOL[g]), backgroundColor: css(GCOL[g]), pointRadius: 0, borderWidth: 2, borderDash: g.includes("fp16") ? [6,4] : g.includes("E5") ? [2,3] : []}));
+if (S.curves.central) bytesDS.push({label: "Centralised (raw upload)", data: [{x: S.raw_upload_bytes/1e6, y: Math.min(...S.curves.central.val_mae)}],
+  pointStyle: "star", pointRadius: 12, borderColor: css("--ink"), backgroundColor: css("--ink"), showLine: false});
+new Chart(document.getElementById("bytesChart"), {type: "line", data: {datasets: bytesDS},
+  options: {maintainAspectRatio: false, parsing: false, plugins: {legend: {position: "bottom", labels: {boxWidth: 12}}},
+    scales: {x: {type: "logarithmic", title: {display: true, text: "cumulative MB (log)"}, afterBuildTicks: ax => { ax.ticks = [0.1,0.2,0.5,1,2,5,10,20].filter(v => v >= ax.min && v <= ax.max).map(v => ({value: v})); }, ticks: {callback: v => v + " MB"}}, y: {title: {display: true, text: "validation MAE (mph)"}}}}});
+
+const rb = S.analytic_round_bytes;
+document.getElementById("byteTable").innerHTML = `
+  <tr><th>Quantity</th><th>Formula</th><th>Bytes</th></tr>
+  <tr><td>Model |w|</td><td>3,747 × 4 B</td><td class="n">14,988</td></tr>
+  <tr><td>Download / round</td><td>K · |w|</td><td class="n">59,952</td></tr>
+  <tr><td>Upload / round</td><td>K · (|w| + 8)</td><td class="n">59,984</td></tr>
+  <tr class="hl"><td><b>Per round</b></td><td>2K|w| + 8K</td><td class="n"><b>${rb.toLocaleString()}</b></td></tr>
+  <tr><td>50 rounds</td><td>× R</td><td class="n">${(50*rb).toLocaleString()}</td></tr>
+  <tr><td>INT8 upload / round</td><td>K · (3,747 + 4·4 + 8)</td><td class="n">${(4*14988 + 4*(3747+16+8)).toLocaleString()}</td></tr>
+  <tr><td>Centralised raw upload</td><td>207 × 23,990 × 4 B</td><td class="n">${S.raw_upload_bytes.toLocaleString()}</td></tr>`;
+document.getElementById("breakEven").innerHTML = `Raw training data = <b>${(S.raw_upload_bytes/rb).toFixed(0)} FedAvg rounds</b> of FP32 updates. A one-off training run of 50 rounds sends ${(50*rb/1e6).toFixed(2)} MB versus ${(S.raw_upload_bytes/1e6).toFixed(2)} MB; in continuous operation raw streaming adds ${(S.raw_stream_bytes_per_day/1e3).toFixed(1)} kB every day.`;
+
+// ---------- results table
+const ORDER = ["central","fedavg_iid_E1_fp32","fedavg_noniid_E1_fp32","local_iid_E1_fp32","local_noniid_E1_fp32","fedavg_iid_E5_fp32","fedavg_noniid_E5_fp32","fedavg_noniid_E1_int8","fedavg_noniid_E1_fp16","fedavg_noniid_E1_fp32_drop25","fedavg_speed_E1_fp32"];
+const core = new Set(["central","fedavg_iid_E1_fp32","fedavg_noniid_E1_fp32"]);
+document.getElementById("resTable").innerHTML = `<tr><th>Method</th><th>Test MAE (mph)</th><th>Test RMSE (mph)</th><th>MAE +15 min</th><th>Bytes</th><th>Rounds to 1% target (per seed)</th><th>Per-seed MAE</th></tr>` +
+  ORDER.filter(g => T[g]).map(g => { const r = T[g];
+    const tag = core.has(g) ? '<span class="pill core">core</span>' : '<span class="pill ext">extension</span>';
+    const rs = (r.r_star_1 || []).map(x => x == null ? "not reached" : x).join(" · ");
+    return `<tr class="${core.has(g) ? "hl" : ""}"><td>${tag} ${short(r.label)}</td><td class="n">${pm(r.mae)}</td><td class="n">${pm(r.rmse)}</td><td class="n">${pm(r.mae_15)}</td><td class="n">${r.B_total[0] ? fmtB(r.B_total[0]) : "0"}</td><td class="n">${g === "central" ? "ref." : rs}</td><td class="n">${r.mae_per_seed.map(v => v.toFixed(3)).join(" · ")}</td></tr>`;
+  }).join("");
+
+// ---------- cost planner
+const HS = [8, 16, 32, 64, 128];
+const planChart = new Chart(document.getElementById("planChart"), {type: "line", data: {labels: [], datasets: [
+  {label: "Raw streaming", data: [], borderColor: css("--ink"), pointRadius: 0, borderWidth: 2},
+  {label: "FedAvg retraining", data: [], borderColor: css("--sign"), pointRadius: 0, borderWidth: 2, stepped: true}]},
+  options: {animation: false, maintainAspectRatio: false, plugins: {legend: {position: "bottom", labels: {boxWidth: 12}}},
+    scales: {x: {title: {display: true, text: "day"}}, y: {title: {display: true, text: "cumulative MB"}}}}});
+function plan() {
+  const K = +pK.value, N = +pN.value, h = HS[+pH.value], R = +pR.value, D = +pD.value, cd = pC.value;
+  vK.textContent = K; vN.textContent = N; vH.textContent = h; vR.textContent = R; vD.textContent = D + " d";
+  const P = 3*(4*h + h*h + 2*h) + h*3 + 3;
+  const up = cd === "fp32" ? P*4 : cd === "fp16" ? P*2 : P + 4*4;
+  const perRound = K*P*4 + K*(up + 8);
+  const raw = N*288*4;
+  const days = Array.from({length: 90}, (_, j) => j+1);
+  planChart.data.labels = days;
+  planChart.data.datasets[0].data = days.map(d => raw*d/1e6);
+  planChart.data.datasets[1].data = days.map(d => perRound*R*(1 + Math.floor((d-1)/D))/1e6);
+  planChart.update();
+  const fl90 = perRound*R*(1 + Math.floor(89/D)), raw90 = raw*90;
+  planOut.innerHTML = `Model: <b>${P.toLocaleString()}</b> parameters · one round: <b>${fmtB(perRound)}</b>. Over 90 days FedAvg sends <b>${fmtB(fl90)}</b>, raw streaming <b>${fmtB(raw90)}</b> — ${fl90 < raw90 ? `FedAvg uses <b>${(100*(1-fl90/raw90)).toFixed(0)}% fewer bytes</b>` : `streaming is <b>${(fl90/raw90).toFixed(1)}× cheaper</b>`} under these settings. Break-even: FedAvg is cheaper only if you retrain less often than every <b>${(perRound*R/raw).toFixed(1)} days</b>.`;
+}
+["pK","pN","pH","pR","pD","pC"].forEach(id => document.getElementById(id).addEventListener("input", plan)); plan();
+
+// ---------- budget selector
+const bG = document.getElementById("bG");
+Object.keys(DATA.per_seed).filter(g => g.startsWith("fedavg")).forEach(g => { const o = document.createElement("option"); o.value = g; o.textContent = short(T[g]?.label || g); if (g === "fedavg_noniid_E1_fp32") o.selected = true; bG.appendChild(o); });
+const budgetChart = new Chart(document.getElementById("budgetChart"), {type: "line", data: {datasets: [
+  {label: "validation MAE", data: [], borderColor: css("--blue"), pointRadius: 0, borderWidth: 2},
+  {label: "selected", data: [], borderColor: css("--sign"), backgroundColor: css("--sign"), pointRadius: 8, showLine: false},
+  {label: "budget", data: [], borderColor: css("--amber"), borderDash: [5,4], pointRadius: 0, borderWidth: 2}]},
+  options: {animation: false, maintainAspectRatio: false, parsing: false, plugins: {legend: {display: false}},
+    scales: {x: {type: "linear", title: {display: true, text: "cumulative MB"}}, y: {title: {display: true, text: "mph"}}}}});
+function budget() {
+  const d = DATA.per_seed[bG.value]?.[bS.value]; const B = +bB.value; vB.textContent = B.toFixed(1) + " MB";
+  if (!d) { budgetOut.textContent = "No log for this seed."; return; }
+  const pts = d.B_cum.map((b, j) => ({x: b/1e6, y: d.val_mae[j], r: d.round[j]}));
+  const ok = pts.filter(p => p.x <= B);
+  const ys = pts.map(p => p.y);
+  budgetChart.data.datasets[0].data = pts;
+  budgetChart.data.datasets[2].data = [{x: B, y: Math.min(...ys)}, {x: B, y: Math.max(...ys)}];
+  if (!ok.length) { budgetChart.data.datasets[1].data = []; budgetOut.innerHTML = "This budget does not cover a single round."; }
+  else { const best = ok.reduce((a, p) => p.y < a.y ? p : a); budgetChart.data.datasets[1].data = [best];
+    budgetOut.innerHTML = `Deploy <b>round ${best.r}</b>: validation MAE <b>${best.y.toFixed(3)} mph</b>, using ${best.x.toFixed(2)} of ${B.toFixed(1)} MB.`; }
+  budgetChart.update();
+}
+[bG, bS, bB].forEach(e => e.addEventListener("input", budget)); budget();
+
+// ---------- method + footer
+const lr = S.lr || {};
+document.getElementById("method").innerHTML = [
+  `<b>Data.</b> METR-LA, ${ds.first.slice(0,10)} → ${ds.last.slice(0,10)}; chronological 70/10/20 split (train ${ds.train_steps.toLocaleString()} steps, val ${ds.val_steps.toLocaleString()}, test ${ds.test_steps.toLocaleString()}). z-score from training readings only (μ ${ds.mu.toFixed(2)}, σ ${ds.sd.toFixed(2)} mph). 0 mph = missing, masked in loss and metrics.`,
+  `<b>Model.</b> GRU(32) + linear head shared by all sensors; input 12 × 5-min steps of [speed z-score, missing flag, sin/cos time of day]; outputs +5, +10, +15 min; masked L1 loss.`,
+  `<b>Clients.</b> 4 groups of sensors. IID: random 52/52/52/51. Non-IID: k-means on latitude/longitude (unequal sizes). Strong non-IID: quantiles of training mean speed.`,
+  `<b>Fairness of comparison.</b> Same model, features, loss, Adam optimiser, batch 1,024 and data passes (central = R·E epochs). Learning rate picked on validation from {1e-3, 3e-3, 1e-2}: central ${lr.central ?? "–"}, FedAvg ${lr.fedavg ?? "–"}.`,
+  `<b>Selection.</b> Best round chosen on validation; the test period is evaluated once.`,
+  `<b>Extensions.</b> INT8 compression of the upload delta, 25% client dropout with a 2/10 Mbit/s link model, a strong non-IID partition, local-only training and E = 5 local epochs.`
+].map(t => `<li>${t}</li>`).join("");
+document.getElementById("foot").innerHTML = `Team NeuroForge · AIORI Hackathon 3 · PS-003. Built from the logged runs in <span class="mono">results/runs/</span> (PyTorch ${S.env.torch}, dataset SHA-256 <span class="mono">${ds.sha256.slice(0,12)}…</span>). References: McMahan et al., AISTATS 2017 (FedAvg); Li et al., ICLR 2018 (METR-LA / DCRNN); Liu et al., IEEE IoT-J 2020 (FedGRU).`;
+
+// ---------- forecast explorer: the trained GRU, running in the browser
+const EX = DATA.explorer;
+const GRU = (function () {
+  // PyTorch nn.GRU (gate order r, z, n) + Linear head, forward pass only
+  function make(w) {
+    const Wih = w["gru.weight_ih_l0"], Whh = w["gru.weight_hh_l0"], bih = w["gru.bias_ih_l0"], bhh = w["gru.bias_hh_l0"];
+    const Wo = w["head.weight"], bo = w["head.bias"], H = Whh[0].length;
+    const sig = x => 1 / (1 + Math.exp(-x));
+    return function (seq) {                       // seq: 12 x 4 features
+      let h = new Float64Array(H);
+      for (const x of seq) {
+        const gi = new Float64Array(3 * H), gh = new Float64Array(3 * H);
+        for (let r = 0; r < 3 * H; r++) {
+          let a = bih[r], b = bhh[r];
+          for (let c = 0; c < x.length; c++) a += Wih[r][c] * x[c];
+          for (let c = 0; c < H; c++) b += Whh[r][c] * h[c];
+          gi[r] = a; gh[r] = b;
+        }
+        const nh = new Float64Array(H);
+        for (let j = 0; j < H; j++) {
+          const r = sig(gi[j] + gh[j]), z = sig(gi[H + j] + gh[H + j]);
+          const nn = Math.tanh(gi[2 * H + j] + r * gh[2 * H + j]);
+          nh[j] = (1 - z) * nn + z * h[j];
+        }
+        h = nh;
+      }
+      return Wo.map((row, k) => row.reduce((s, v, j) => s + v * h[j], bo[k]));
+    };
+  }
+  return {fed: EX.models.fedavg && make(EX.models.fedavg), cen: EX.models.central && make(EX.models.central)};
+})();
+const SPEED = (function () {
+  const bin = atob(EX.speed_x10_b64), buf = new ArrayBuffer(bin.length), u8 = new Uint8Array(buf);
+  for (let k = 0; k < bin.length; k++) u8[k] = bin.charCodeAt(k);
+  return new Int16Array(buf);                     // [step * n_sensors + sensor] = speed * 10
+})();
+const EX_T0 = new Date(EX.start.replace(" ", "T") + "Z");
+const spd = (t, j) => SPEED[t * EX.n_sensors + j] / 10;
+const todAt = t => { const d = new Date(EX_T0.getTime() + t * 300000); return (d.getUTCHours() * 60 + d.getUTCMinutes()) / 1440; };
+function windowFeatures(anchor, j) {                // exactly fedtraffic.data.WindowSet.batch
+  const seq = []; let last = null;
+  for (let k = anchor - 11; k <= anchor; k++) {
+    const v = spd(k, j), obs = v > 0;
+    if (obs) last = v;
+    const z = last === null ? 0 : (last - EX.mu) / EX.sd;
+    const ang = 2 * Math.PI * todAt(k);
+    seq.push([z, obs ? 0 : 1, Math.sin(ang), Math.cos(ang)]);
+  }
+  return seq;
+}
+const cache = {};
+function forecast(j) {
+  if (cache[j]) return cache[j];
+  const out = {fed: [], cen: []};
+  for (let a = 11; a < EX.n_steps - 1; a++) {
+    const f = windowFeatures(a, j);
+    out.fed[a] = GRU.fed(f).map(v => v * EX.sd + EX.mu);
+    out.cen[a] = GRU.cen(f).map(v => v * EX.sd + EX.mu);
+  }
+  return (cache[j] = out);
+}
+let exSensor = EX.default_sensor, exH = 3;
+const exChart = new Chart(document.getElementById("exChart"), {
+  type: "line", data: {labels: [], datasets: [
+    {label: "Measured speed", data: [], borderColor: css("--muted"), backgroundColor: css("--chip"), fill: "origin", pointRadius: 0, borderWidth: 1.5, spanGaps: false},
+    {label: "Federated model (never saw this data)", data: [], borderColor: css("--sign"), pointRadius: 0, borderWidth: 2.2},
+    {label: "Centralised model", data: [], borderColor: css("--ink"), borderDash: [5, 4], pointRadius: 0, borderWidth: 1.4}]},
+  options: {animation: false, maintainAspectRatio: false, interaction: {mode: "index", intersect: false},
+    plugins: {legend: {position: "bottom", labels: {boxWidth: 12}},
+      tooltip: {callbacks: {label: ctx => `${ctx.dataset.label.split(" (")[0]}: ${ctx.parsed.y == null ? "missing" : ctx.parsed.y.toFixed(1) + " mph"}`}}},
+    scales: {x: {ticks: {maxRotation: 0, autoSkip: false, callback: function (v) { const l = this.getLabelForValue(v); return (this.chart.width < 640 ? /(00|12):00$/ : /(00|04|08|12|16|20):00$/).test(l) ? l : null; }}, grid: {display: false}}, y: {title: {display: true, text: "speed (mph)"}, suggestedMin: 0, suggestedMax: 75}}}
+});
+function clientOf(j) { return DATA.partitions.noniid.findIndex(g => g.includes(j)); }
+function renderExplorer() {
+  const fc = forecast(exSensor), labels = [], meas = [], pf = [], pc = [];
+  let ef = 0, ec = 0, n = 0;
+  for (let t = EX.first_shown; t < EX.n_steps; t++) {
+    const d = new Date(EX_T0.getTime() + t * 300000);
+    const hh = d.getUTCHours(), mm = d.getUTCMinutes();
+    labels.push((hh === 0 && mm === 0 ? ["Tue", "Wed"][d.getUTCDate() - 12] + " " : "") + String(hh).padStart(2, "0") + ":" + String(mm).padStart(2, "0"));
+    const y = spd(t, exSensor), a = t - exH;
+    const f = fc.fed[a] ? fc.fed[a][exH - 1] : null, c2 = fc.cen[a] ? fc.cen[a][exH - 1] : null;
+    meas.push(y > 0 ? y : null); pf.push(f); pc.push(c2);
+    if (y > 0 && f != null) { ef += Math.abs(f - y); ec += Math.abs(c2 - y); n++; }
+  }
+  exChart.data.labels = labels;
+  exChart.data.datasets[0].data = meas; exChart.data.datasets[1].data = pf; exChart.data.datasets[2].data = pc;
+  exChart.update();
+  const k = clientOf(exSensor);
+  document.getElementById("exF").textContent = (ef / n).toFixed(2) + " mph";
+  document.getElementById("exC").textContent = (ec / n).toFixed(2) + " mph";
+  document.getElementById("exBadge").innerHTML = `<i style="background:var(${CLIENT_VARS[k]})"></i>Sensor ${DATA.sensor_ids ? DATA.sensor_ids[exSensor] : "#" + exSensor} · client C${k + 1}`;
+  document.getElementById("exTitle").textContent = `${n} measured 5-min steps · forecast made ${exH * 5} min ahead`;
+  const diff = ef / n - ec / n;
+  document.getElementById("exNote").innerHTML = `On this sensor the federated model is ${Math.abs(diff) < 0.05 ? "<b>as accurate as</b>" : diff < 0 ? "<b>more accurate than</b>" : "<b>" + diff.toFixed(2) + " mph less accurate than</b>"} the centralised one, although client C${k + 1} never uploaded a single reading. Over the whole test period (seed 11) the two models score ${EX.test_mae_s11.fedavg.toFixed(3)} and ${EX.test_mae_s11.central.toFixed(3)} mph. Gaps in the grey area are missing readings, including a network-wide sensor outage early on Tuesday; the models keep forecasting from the last values they saw.`;
+  drawExMap();
+}
+function drawExMap() {
+  const m = document.getElementById("exmap"); m.innerHTML = "";
+  const P = p => [20 + (p[1] - lo0) / (lo1 - lo0) * 460, 20 + (la1 - p[0]) / (la1 - la0) * 420];
+  DATA.partitions.noniid.forEach((g, k) => g.forEach(j => {
+    const [x, y] = P(DATA.coords[j]);
+    const c = el("circle", {cx: x, cy: y, r: j === exSensor ? 7 : 4.6, fill: css(CLIENT_VARS[k]), "fill-opacity": j === exSensor ? 1 : .8, class: "s", tabindex: 0, role: "button", "aria-label": "Sensor " + j});
+    if (j === exSensor) { c.setAttribute("stroke", css("--ink")); c.setAttribute("stroke-width", 2.5); }
+    const pick = () => { exSensor = j; renderExplorer(); };
+    c.addEventListener("click", pick);
+    c.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+    m.appendChild(c);
+  }));
+  const [x, y] = P(DATA.coords[exSensor]);
+  m.appendChild(el("circle", {cx: x, cy: y, r: 13, fill: "none", stroke: css("--amber"), "stroke-width": 3}));
+}
+const CONGESTED = (function () {   // sensors whose measured speed drops below 25 mph on these days
+  const out = [];
+  for (let j = 0; j < EX.n_sensors; j++) { let lowc = 0; for (let t = EX.first_shown; t < EX.n_steps; t++) { const v = spd(t, j); if (v > 0 && v < 25) lowc++; } if (lowc > 20) out.push(j); }
+  return out;
+})();
+document.getElementById("exRandom").onclick = () => { const opts = CONGESTED.filter(j => j !== exSensor); exSensor = opts[Math.floor(Math.random() * opts.length)]; renderExplorer(); };
+seg("segH", v => { exH = +v; renderExplorer(); });
+if (GRU.fed && GRU.cen) renderExplorer(); else document.getElementById("explorer").hidden = true;
+
+drawStage(); setReadout();
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => location.reload());
+</script>

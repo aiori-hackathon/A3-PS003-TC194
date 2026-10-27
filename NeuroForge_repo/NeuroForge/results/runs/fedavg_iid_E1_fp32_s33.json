@@ -1,0 +1,98 @@
+{
+  "run_id": "fedavg_iid_E1_fp32_s33",
+  "seed": 33,
+  "method": "fedavg",
+  "partition": "iid",
+  "K": 4,
+  "rounds": 50,
+  "local_epochs": 1,
+  "lr": 0.01,
+  "batch": 1024,
+  "train_stride": 24,
+  "val_stride": 6,
+  "codec": "fp32",
+  "dropout": 0.0,
+  "up_mbps": 2.0,
+  "down_mbps": 10.0,
+  "rtt_ms": 60.0,
+  "max_rounds_eval_test": true,
+  "params": 3747,
+  "bytes_per_param_set": 14988,
+  "best_round": 50,
+  "B_at_best": 5996896,
+  "B_total": 5996896,
+  "sim_comm_s_total": 9.6,
+  "test": {
+    "mae": 2.7480804532121508,
+    "rmse": 5.23606765729396,
+    "mae_15": 3.0454283883967603,
+    "rmse_15": 5.990917123949376
+  },
+  "per_client_test": [
+    {
+      "client": 1,
+      "mae": 2.521927905386502,
+      "rmse": 4.797220028059873,
+      "mae_15": 2.766696553350045,
+      "rmse_15": 5.447945682735125
+    },
+    {
+      "client": 2,
+      "mae": 2.911835767074537,
+      "rmse": 5.407551693653142,
+      "mae_15": 3.228404009206991,
+      "rmse_15": 6.149309466446136
+    },
+    {
+      "client": 3,
+      "mae": 2.7813700590656856,
+      "rmse": 5.365355268263467,
+      "mae_15": 3.087406652415046,
+      "rmse_15": 6.154902191509341
+    },
+    {
+      "client": 4,
+      "mae": 2.7786531152005782,
+      "rmse": 5.352013665775606,
+      "mae_15": 3.1011060764938225,
+      "rmse_15": 6.182142202866226
+    }
+  ],
+  "client_stats": [
+    {
+      "client": 1,
+      "sensors": 52,
+      "mean_speed": 59.79,
+      "std_speed": 12.19,
+      "missing_rate": 0.0745,
+      "share_congested": 0.0973
+    },
+    {
+      "client": 2,
+      "sensors": 52,
+      "mean_speed": 57.85,
+      "std_speed": 12.49,
+      "missing_rate": 0.0687,
+      "share_congested": 0.1079
+    },
+    {
+      "client": 3,
+      "sensors": 52,
+      "mean_speed": 57.9,
+      "std_speed": 13.45,
+      "missing_rate": 0.0718,
+      "share_congested": 0.1158
+    },
+    {
+      "client": 4,
+      "sensors": 51,
+      "mean_speed": 58.82,
+      "std_speed": 13.03,
+      "missing_rate": 0.0703,
+      "share_congested": 0.0987
+    }
+  ],
+  "heterogeneity_mph": 1.9399999999999977,
+  "train_windows": 193030,
+  "wall_s": 383.4
+}

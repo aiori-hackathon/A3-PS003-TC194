@@ -1,0 +1,32 @@
+[
+  {
+    "method": "central",
+    "lr": 0.001,
+    "best_val_mae_8": 2.597
+  },
+  {
+    "method": "central",
+    "lr": 0.003,
+    "best_val_mae_8": 2.562
+  },
+  {
+    "method": "central",
+    "lr": 0.01,
+    "best_val_mae_8": 2.5174
+  },
+  {
+    "method": "fedavg",
+    "lr": 0.001,
+    "best_val_mae_8": 2.636
+  },
+  {
+    "method": "fedavg",
+    "lr": 0.003,
+    "best_val_mae_8": 2.6081
+  },
+  {
+    "method": "fedavg",
+    "lr": 0.01,
+    "best_val_mae_8": 2.5734
+  }
+]

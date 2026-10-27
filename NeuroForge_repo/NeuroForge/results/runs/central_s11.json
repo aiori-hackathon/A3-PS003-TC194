@@ -1,0 +1,32 @@
+{
+  "run_id": "central_s11",
+  "seed": 11,
+  "method": "central",
+  "partition": "iid",
+  "K": 4,
+  "rounds": 50,
+  "local_epochs": 1,
+  "lr": 0.01,
+  "batch": 1024,
+  "train_stride": 24,
+  "val_stride": 6,
+  "codec": "fp32",
+  "dropout": 0.0,
+  "up_mbps": 2.0,
+  "down_mbps": 10.0,
+  "rtt_ms": 60.0,
+  "max_rounds_eval_test": true,
+  "params": 3747,
+  "best_round": 19,
+  "B_at_best": 19863720,
+  "B_total": 19863720,
+  "sim_comm_s_total": 79.45,
+  "test": {
+    "mae": 2.746664538797888,
+    "rmse": 5.2019008495777515,
+    "mae_15": 3.0426648306610264,
+    "rmse_15": 5.939686583694119
+  },
+  "train_windows": 193030,
+  "wall_s": 377.3
+}
