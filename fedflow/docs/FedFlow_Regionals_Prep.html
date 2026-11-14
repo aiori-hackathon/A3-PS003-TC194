@@ -1,0 +1,842 @@
+<!doctype html><html><head><meta charset='utf-8'><title>FedFlow</title><style>@page { size: A4; margin: 14mm 14mm 15mm 14mm; }
+@page :first { margin: 0; }
+:root { --brand:#0369a1; --ink:#0f172a; --mut:#64748b; --line:#e2e8f0; }
+* { box-sizing: border-box; }
+body { margin:0; font-family: Inter, sans-serif; font-size: 10pt; line-height: 1.5; color: var(--ink); }
+h1, h2, h3, h4 { font-family: Poppins, Inter, sans-serif; line-height: 1.2; }
+.cover { height: 297mm; padding: 26mm 20mm; color: #fff; position: relative; page-break-after: always;
+  background: radial-gradient(circle at 85% 12%, #ffffff30 0, transparent 38%), linear-gradient(155deg, var(--brand) 0%, #0f172a 100%); }
+.cover .tag { display:inline-block; border:1px solid #ffffff66; border-radius:99px; padding:4px 12px; font-size:9pt; letter-spacing:.6px; }
+.cover h1 { font-size: 40pt; margin: 34mm 0 4mm; letter-spacing:-.5px; }
+.cover .sub { font-size: 14pt; font-weight: 300; max-width: 160mm; }
+.cover .meta { margin-top: 14mm; font-size: 11pt; line-height: 1.7; }
+.cover .meta b { font-weight: 700; }
+.cover .for { position:absolute; bottom: 20mm; left: 20mm; right: 20mm; border-top:1px solid #ffffff44; padding-top: 4mm; font-size: 9pt; opacity:.85; }
+main h1 { font-size: 20pt; color: var(--brand); margin: 0 0 3mm; page-break-before: always; }
+main h1:first-child { page-break-before: auto; }
+main h2 { font-size: 13.5pt; margin: 7mm 0 1.5mm; padding: 2mm 3mm; border-left: 5px solid var(--brand); background: #f8fafc; border-radius: 0 6px 6px 0; page-break-after: avoid; page-break-inside: avoid; break-inside: avoid; }
+main h3 { font-size: 11pt; margin: 4mm 0 1mm; color: var(--brand); page-break-after: avoid; }
+main h4 { font-size: 10pt; margin: 3mm 0 1mm; page-break-after: avoid; }
+p { margin: 1.2mm 0 2mm; }
+ul, ol { margin: 1mm 0 2.5mm; padding-left: 6mm; }
+li { margin-bottom: .8mm; }
+strong { color: #0b1220; }
+table { width: 100%; border-collapse: collapse; margin: 2mm 0 3.5mm; font-size: 9pt; page-break-inside: auto; }
+th { background: var(--brand); color: #fff; text-align: left; padding: 1.8mm 2mm; font-weight: 600; }
+td { border-bottom: 1px solid var(--line); padding: 1.6mm 2mm; vertical-align: top; }
+tr { page-break-inside: avoid; }
+tr:nth-child(even) td { background: #f8fafc; }
+code { font-family: 'DejaVu Sans Mono', monospace; font-size: 8.6pt; background: #f1f5f9; padding: 0 1mm; border-radius: 3px; }
+pre { background: #0f172a; color: #e2e8f0; padding: 3mm; border-radius: 6px; font-size: 8.4pt; line-height: 1.4; white-space: pre-wrap; page-break-inside: avoid; }
+pre code { background: none; color: inherit; padding: 0; }
+.dia { text-align: center; margin: 2mm 0 3mm; page-break-inside: avoid; }
+.dia svg { max-width: 100%; height: auto; max-height: 100mm; }
+.q { font-size: 8.6pt; color: var(--mut); background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 1.5mm 3mm; margin: 1mm 0 2mm; }
+.q b { color: var(--brand); }
+.tip, .short, .warn, .formula { border-radius: 8px; padding: 2.5mm 3.5mm; margin: 2.5mm 0 3mm; page-break-inside: avoid; font-size: 9.4pt; }
+.tip { background: #ecfdf5; border-left: 4px solid #10b981; }
+.tip::before { content: "EXAM TIP  "; font-weight: 800; color: #047857; font-size: 8pt; letter-spacing: .6px; }
+.short { background: #fffbeb; border-left: 4px solid #f59e0b; }
+.short::before { content: "SHORTCUT / MNEMONIC  "; font-weight: 800; color: #b45309; font-size: 8pt; letter-spacing: .6px; }
+.warn { background: #fef2f2; border-left: 4px solid #ef4444; }
+.warn::before { content: "DON'T MISS  "; font-weight: 800; color: #b91c1c; font-size: 8pt; letter-spacing: .6px; }
+.formula { background: #eef2ff; border-left: 4px solid var(--brand); font-family: 'DejaVu Sans Mono', monospace; font-size: 9pt; white-space: pre-wrap; }
+.tier { display:inline-block; font-size: 7.5pt; font-weight: 800; letter-spacing:.6px; color:#fff; border-radius: 4px; padding: .3mm 2mm; vertical-align: 2px; margin-left: 2mm; }
+.t1 { background:#dc2626; } .t2 { background:#f59e0b; } .t3 { background:#64748b; }
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+.box { border: 1px solid var(--line); border-radius: 8px; padding: 3mm; background: #fff; page-break-inside: avoid; }
+.pb { page-break-before: always; }
+.small { font-size: 8.6pt; color: var(--mut); }
+.stack { margin: 2mm auto 3mm; max-width: 150mm; page-break-inside: avoid; }
+.stack div { border-radius: 6px; padding: 2mm 3mm; margin-bottom: 1.2mm; color: #0f172a; font-size: 9pt; border-left: 5px solid var(--brand); background: #eef2ff; }
+.stack div b { font-family: Poppins, Inter; }
+.stack .s1 { background:#e0f2fe; border-color:#0284c7; } .stack .s2 { background:#dcfce7; border-color:#16a34a; } .stack .s3 { background:#fef9c3; border-color:#ca8a04; }
+.stack .s4 { background:#ffedd5; border-color:#ea580c; } .stack .s5 { background:#fce7f3; border-color:#db2777; } .stack .s6 { background:#ede9fe; border-color:#7c3aed; } .stack .s7 { background:#e2e8f0; border-color:#475569; }
+.stack .arrow { background:none; border:none; text-align:center; padding:0; margin:0 0 1mm; color:#64748b; font-size:8.5pt; }
+.formula.long { page-break-inside: auto; break-inside: auto; }
+.tip::before{content:"SAY THIS  "} .short::before{content:"REMEMBER  "} .warn::before{content:"BE HONEST  "} img{max-width:100%;border-radius:6px;border:1px solid #e2e8f0} .shot{page-break-inside:avoid;margin:2mm 0 3mm} .cap{font-size:8.4pt;color:#64748b;text-align:center;margin-top:1mm} .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;margin:3mm 0} .kpi div{border:1px solid #e2e8f0;border-radius:8px;padding:2.5mm 3mm;background:#f8fafc} .kpi b{display:block;font-size:16pt;color:var(--brand);font-family:Poppins,Inter} .kpi span{font-size:8.2pt;color:#64748b} .kpi{page-break-inside:avoid}</style></head><body><div class="cover"><div class="tag">AIORI HACKATHON 3 · REGIONALS PREP BOOK</div>
+<h1>FedFlow</h1><div class="sub">Privacy-preserving traffic-flow forecasting with federated learning. Everything you need to present, defend and deploy it at the regionals.</div>
+<div class="meta"><b>Team NeuroForge</b> · Team code A3-PS003-TC194<br>Mentor: Dr Zainab Mirza<br>Regionals: World Peace University, Pune · 16 November 2026</div><div class="for">Read in this order: §1 pitch → §9 results cheat-sheet → §10 demo script → §11 judge Q&A. The rest is the deep explanation behind every claim.</div></div><main><h1>1. The project in one page</h1>
+<h2>The 60-second pitch (memorise this)</h2>
+<div class="tip">Every city has traffic data, but it is split between agencies: the municipal corporation, the highway authority, toll operators, traffic police. Nobody is allowed to, or wants to, pool their raw data. So each one predicts traffic badly on its own. <b>FedFlow</b> lets all of them train <b>one shared forecasting model without any raw data ever leaving their own server</b>. Each zone trains locally and sends only an encrypted model update; our coordinator combines them with secure aggregation, so it cannot even read a single zone's update. On real data from 170 road sensors, the federated model predicts traffic 5 to 60 minutes ahead with an average error of about 18 vehicles per 5 minutes, <b>18% better than today's historical-average method and as accurate as pooling all the data centrally</b>. A brand-new zone with zero history gets a day-one model as good as one it could only train after a week of collecting data. And we turn the forecasts into action: early congestion warnings and signal timings that adapt before the queue builds.</div>
+
+<h2>What we built (the five things to point at)</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Piece</th>
+<th>What it proves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Federated learning engine</strong> (Python, NumPy)</td>
+<td>FedAvg, FedProx, secure aggregation, differential privacy with a privacy accountant, client dropout. Models with hand-written back-propagation, gradient-checked.</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Measured benchmarks</strong> on PeMS08</td>
+<td>10 methods compared on 12 unseen test days, 4 horizons; scarce-data, cold-start, DP-at-scale and dropout experiments.</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>FedFlow web app</strong> (7 screens)</td>
+<td>Live city command centre, real federated training running in the browser, forecast explorer, predictive signal planner, privacy page, benchmarks, architecture.</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Network mode</strong> (<code>server.py</code> + <code>client.py</code>)</td>
+<td>Real federated training across separate machines over HTTP, with Diffie–Hellman-based secure aggregation.</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Deployable</strong></td>
+<td>Static site: works offline on a laptop, or live on Vercel / Netlify / GitHub Pages in minutes.</td>
+</tr>
+</tbody>
+</table>
+<h2>Headline numbers</h2>
+<div class="kpi"><div><b>17.99</b><span>federated GRU test MAE (veh / 5 min), avg of 5/15/30/60 min</span></div><div><b>18%</b><span>lower error than historical average (21.99)</span></div><div><b>1.3%</b><span>better than centralised training on pooled data (18.22)</span></div><div><b>0 bytes</b><span>of raw sensor data leave any zone</span></div></div>
+<div class="kpi"><div><b>8.7%</b><span>error cut vs local-only when zones have only 3 days of data (up to 19% in one zone)</span></div><div><b>Day 1</b><span>a new zone with no data matches its own 7-day model</span></div><div><b>14.7 KB</b><span>per model update; 5.4× less data moved than shipping raw data</span></div><div><b>60%</b><span>zones offline per round and the error moves only 17.99 → 18.19</span></div></div>
+
+<h1>2. The problem and why federated learning</h1>
+<h2>The problem statement in our words</h2>
+<p>Predict short-term traffic flow (vehicles per 5 minutes) at every sensor of a city, 5 to 60 minutes ahead, <strong>when the data is distributed across organisations that cannot share it</strong>. That last part is what makes it a federated-learning problem rather than an ordinary forecasting problem.</p>
+<h2>Why data cannot simply be pooled</h2>
+<ul>
+<li><strong>Ownership and law.</strong> Different agencies own the sensors. India's DPDP Act 2023 pushes data minimisation and purpose limitation; camera / ANPR data can reveal movement of people.</li>
+<li><strong>Security.</strong> One central database of a whole city's movement is a high-value target.</li>
+<li><strong>Politics and cost.</strong> Agencies do not want to give away data; shipping and storing every raw reading centrally costs bandwidth and storage forever.</li>
+</ul>
+<h2>Why each agency on its own is not enough</h2>
+<ul>
+<li>A zone sees only its own roads, so it learns from fewer patterns (fewer peak-hour events, fewer incidents).</li>
+<li><strong>New zones have no history at all</strong> (new sensors, new flyover, new smart-city ward). They cannot train anything for weeks.</li>
+<li>Small zones (our Zone H has only 3 sensors) are data-poor.</li>
+</ul>
+<h2>Federated learning in one sentence</h2>
+<div class="short">Instead of bringing the data to the model, bring the model to the data. Each zone trains a copy of the model on its own data and sends back only the change in the weights; the server averages the changes into a better global model and sends it back. Repeat.</div>
+
+<h1>3. Architecture</h1>
+<div class="dia"><svg id="my-svg" width="100%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="flowchart" style="max-width: 1869.41px; background-color: transparent;" viewBox="0 0 1869.40625 598.4622192382812" role="graphics-document document" aria-roledescription="flowchart-v2"><style>#my-svg{font-family:Inter,sans-serif;font-size:14px;fill:#0f172a;}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#my-svg .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#my-svg .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#my-svg .error-icon{fill:#fff7ed;}#my-svg .error-text{fill:#000812;stroke:#000812;}#my-svg .edge-thickness-normal{stroke-width:1px;}#my-svg .edge-thickness-thick{stroke-width:3.5px;}#my-svg .edge-pattern-solid{stroke-dasharray:0;}#my-svg .edge-thickness-invisible{stroke-width:0;fill:none;}#my-svg .edge-pattern-dashed{stroke-dasharray:3;}#my-svg .edge-pattern-dotted{stroke-dasharray:2;}#my-svg .marker{fill:#475569;stroke:#475569;}#my-svg .marker.cross{stroke:#475569;}#my-svg svg{font-family:Inter,sans-serif;font-size:14px;}#my-svg p{margin:0;}#my-svg .label{font-family:Inter,sans-serif;color:#0f172a;}#my-svg .cluster-label text{fill:#000812;}#my-svg .cluster-label span{color:#000812;}#my-svg .cluster-label span p{background-color:transparent;}#my-svg .label text,#my-svg span{fill:#0f172a;color:#0f172a;}#my-svg .node rect,#my-svg .node circle,#my-svg .node ellipse,#my-svg .node polygon,#my-svg .node path{fill:#eef2ff;stroke:#0369a1;stroke-width:1px;}#my-svg .rough-node .label text,#my-svg .node .label text,#my-svg .image-shape .label,#my-svg .icon-shape .label{text-anchor:middle;}#my-svg .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#my-svg .rough-node .label,#my-svg .node .label,#my-svg .image-shape .label,#my-svg .icon-shape .label{text-align:center;}#my-svg .node.clickable{cursor:pointer;}#my-svg .root .anchor path{fill:#475569!important;stroke-width:0;stroke:#475569;}#my-svg .arrowheadPath{fill:#0b0b0b;}#my-svg .edgePath .path{stroke:#475569;stroke-width:1px;}#my-svg .flowchart-link{stroke:#475569;fill:none;}#my-svg .edgeLabel{background-color:#f0fdf4;text-align:center;}#my-svg .edgeLabel p{background-color:#f0fdf4;}#my-svg .edgeLabel rect{opacity:0.5;background-color:#f0fdf4;fill:#f0fdf4;}#my-svg .labelBkg{background-color:rgba(240, 253, 244, 0.5);}#my-svg .cluster rect{fill:#fff7ed;stroke:hsl(33.3333333333, 60%, 86.4705882353%);stroke-width:1px;}#my-svg .cluster text{fill:#000812;}#my-svg .cluster span{color:#000812;}#my-svg div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:Inter,sans-serif;font-size:12px;background:#fff7ed;border:1px solid hsl(33.3333333333, 60%, 86.4705882353%);border-radius:2px;pointer-events:none;z-index:100;}#my-svg .flowchartTitleText{text-anchor:middle;font-size:18px;fill:#0f172a;}#my-svg rect.text{fill:none;stroke-width:0;}#my-svg .icon-shape,#my-svg .image-shape{background-color:#f0fdf4;text-align:center;}#my-svg .icon-shape p,#my-svg .image-shape p{background-color:#f0fdf4;padding:2px;}#my-svg .icon-shape .label rect,#my-svg .image-shape .label rect{opacity:0.5;background-color:#f0fdf4;fill:#f0fdf4;}#my-svg .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#my-svg .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#my-svg .node .neo-node{stroke:#0369a1;}#my-svg [data-look="neo"].node rect,#my-svg [data-look="neo"].cluster rect,#my-svg [data-look="neo"].node polygon{stroke:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].swimlane.cluster rect{filter:none;}#my-svg [data-look="neo"].node path{stroke:url(#my-svg-gradient);stroke-width:1px;}#my-svg [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].node .neo-line path{stroke:#0369a1;filter:none;}#my-svg [data-look="neo"].node circle{stroke:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].node circle .state-start{fill:#000000;}#my-svg [data-look="neo"].icon-shape .icon{fill:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].icon-shape .icon-neo path{stroke:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg :root{--mermaid-font-family:"trebuchet ms",verdana,arial,sans-serif;}</style><g><marker id="my-svg_flowchart-v2-pointEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-pointStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="4.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 5 L 10 10 L 10 0 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-pointEnd-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="11.5" refY="7" markerUnits="userSpaceOnUse" markerWidth="10.5" markerHeight="14" orient="auto"><path d="M 0 0 L 11.5 7 L 0 14 z" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-pointStart-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="1" refY="7" markerUnits="userSpaceOnUse" markerWidth="11.5" markerHeight="14" orient="auto"><polygon points="0,7 11.5,14 11.5,0" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="11" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-1" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleEnd-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refY="5" refX="12.25" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleStart-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-2" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-crossEnd" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="12" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-crossStart" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="-1" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-crossEnd-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="17.7" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5;"/></marker><marker id="my-svg_flowchart-v2-crossStart-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="-3.5" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5; stroke-dasharray: 1, 0;"/></marker><g class="root"><g class="clusters"><g class="cluster" id="my-svg-Z3" data-look="classic"><rect style="" x="1197.328125" y="406.5877265930176" width="664.078125" height="183.8744888305664"/><g class="cluster-label" transform="translate(1474.34375, 406.5877265930176)"><g><rect class="background" style="stroke: none"/><text y="-10.1" style=""><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em"><tspan font-style="normal" class="text-inner-tspan" font-weight="normal">Zone</tspan><tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> server</tspan><tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> ...</tspan><tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> H</tspan></tspan></text></g></g></g><g class="cluster" id="my-svg-Z2" data-look="classic"><rect style="" x="862.328125" y="8" width="999.078125" height="183.8744888305664"/><g class="cluster-label" transform="translate(1288.640625, 8)"><g><rect class="background" style="stroke: none"/><text y="-10.1" style=""><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em"><tspan font-style="normal" class="text-inner-tspan" font-weight="normal">Zone</tspan><tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> server</tspan><tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> B:</tspan><tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> private</tspan></tspan></text></g></g></g><g class="cluster" id="my-svg-Z1" data-look="classic"><rect style="" x="8" y="213.2934970855713" width="636.171875" height="187.3752212524414"/><g class="cluster-label" transform="translate(252.609375, 213.2934970855713)"><g><rect class="background" style="stroke: none"/><text y="-10.1" style=""><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em"><tspan font-style="normal" class="text-inner-tspan" font-weight="normal">Zone</tspan><tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> server</tspan><tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> A:</tspan><tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> private</tspan></tspan></text></g></g></g></g><g class="edgePaths"><path d="M217.922,304.588L222.089,304.588C226.255,304.588,234.589,304.588,242.255,304.588C249.922,304.588,256.922,304.588,260.422,304.588L263.922,304.588" id="my-svg-L_S1_D1_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_S1_D1_0" data-points="W3sieCI6MjE3LjkyMTg3NSwieSI6MzA0LjU4NzcyNjU5MzAxNzZ9LHsieCI6MjQyLjkyMTg3NSwieSI6MzA0LjU4NzcyNjU5MzAxNzZ9LHsieCI6MjY3LjkyMTg3NSwieSI6MzA0LjU4NzcyNjU5MzAxNzZ9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M388.875,304.588L393.042,304.588C397.208,304.588,405.542,304.588,413.208,304.588C420.875,304.588,427.875,304.588,431.375,304.588L434.875,304.588" id="my-svg-L_D1_T1_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_D1_T1_0" data-points="W3sieCI6Mzg4Ljg3NSwieSI6MzA0LjU4NzcyNjU5MzAxNzZ9LHsieCI6NDEzLjg3NSwieSI6MzA0LjU4NzcyNjU5MzAxNzZ9LHsieCI6NDM4Ljg3NSwieSI6MzA0LjU4NzcyNjU5MzAxNzZ9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M1051.766,79.437L1071.859,79.437C1091.953,79.437,1132.141,79.437,1156.401,79.437C1180.661,79.437,1188.995,79.437,1204.499,79.437C1220.003,79.437,1242.677,79.437,1254.014,79.437L1265.352,79.437" id="my-svg-L_S2_D2_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_S2_D2_0" data-points="W3sieCI6MTA1MS43NjU2MjUsInkiOjc5LjQzNzI0NDQxNTI4MzJ9LHsieCI6MTE3Mi4zMjgxMjUsInkiOjc5LjQzNzI0NDQxNTI4MzJ9LHsieCI6MTE5Ny4zMjgxMjUsInkiOjc5LjQzNzI0NDQxNTI4MzJ9LHsieCI6MTI2OS4zNTE1NjI1LCJ5Ijo3OS40MzcyNDQ0MTUyODMyfV0=" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M1390.305,79.437L1409.732,79.437C1429.159,79.437,1468.013,79.437,1505.007,80.802C1542.001,82.166,1577.136,84.896,1594.703,86.26L1612.27,87.625" id="my-svg-L_D2_T2_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_D2_T2_0" data-points="W3sieCI6MTM5MC4zMDQ2ODc1LCJ5Ijo3OS40MzcyNDQ0MTUyODMyfSx7IngiOjE1MDYuODY3MTg3NSwieSI6NzkuNDM3MjQ0NDE1MjgzMn0seyJ4IjoxNjE2LjI1NzgxMjUsInkiOjg3LjkzNDYwMTYwNTY4Mjk2fV0=" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M1390.305,478.025L1409.732,478.025C1429.159,478.025,1468.013,478.025,1508.172,482.282C1548.332,486.538,1589.797,495.052,1610.529,499.308L1631.261,503.565" id="my-svg-L_D3_T3_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_D3_T3_0" data-points="W3sieCI6MTM5MC4zMDQ2ODc1LCJ5Ijo0NzguMDI0OTcxMDA4MzAwOH0seyJ4IjoxNTA2Ljg2NzE4NzUsInkiOjQ3OC4wMjQ5NzEwMDgzMDA4fSx7IngiOjE2MzUuMTc5Njg3NSwieSI6NTA0LjM2OTYxODg3NDAxODl9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M616.396,279.088L621.025,277.737C625.654,276.386,634.913,273.683,657.722,272.332C680.531,270.981,716.891,270.981,753.25,270.981C789.609,270.981,825.969,270.981,847.648,270.981C869.328,270.981,876.328,270.981,879.828,270.981L883.328,270.981" id="my-svg-L_T1_AGG_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_T1_AGG_0" data-points="W3sieCI6NjE2LjM5NTY2NTE3NDE4NDgsInkiOjI3OS4wODc3MjY1OTMwMTc2fSx7IngiOjY0NC4xNzE4NzUsInkiOjI3MC45ODExMDc3MTE3OTJ9LHsieCI6NzUzLjI1LCJ5IjoyNzAuOTgxMTA3NzExNzkyfSx7IngiOjg2Mi4zMjgxMjUsInkiOjI3MC45ODExMDc3MTE3OTJ9LHsieCI6ODg3LjMyODEyNSwieSI6MjcwLjk4MTEwNzcxMTc5Mn1d" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M1629.819,120.437L1609.327,127.26C1588.835,134.083,1547.851,147.729,1497.853,154.552C1447.854,161.374,1388.841,161.374,1337.251,161.374C1285.661,161.374,1241.495,161.374,1215.245,161.374C1188.995,161.374,1180.661,161.374,1159.691,173.257C1138.72,185.14,1105.112,208.906,1088.308,220.789L1071.503,232.672" id="my-svg-L_T2_AGG_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_T2_AGG_0" data-points="W3sieCI6MTYyOS44MTg5OTYyOTExNTI2LCJ5IjoxMjAuNDM3MjQ0NDE1MjgzMn0seyJ4IjoxNTA2Ljg2NzE4NzUsInkiOjE2MS4zNzQ0ODg4MzA1NjY0fSx7IngiOjEzMjkuODI4MTI1LCJ5IjoxNjEuMzc0NDg4ODMwNTY2NH0seyJ4IjoxMTk3LjMyODEyNSwieSI6MTYxLjM3NDQ4ODgzMDU2NjR9LHsieCI6MTE3Mi4zMjgxMjUsInkiOjE2MS4zNzQ0ODg4MzA1NjY0fSx7IngiOjEwNjguMjM3NDU5MjgwNjg1NSwieSI6MjM0Ljk4MTEwNzcxMTc5Mn1d" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M1635.18,533.618L1613.794,538.008C1592.409,542.399,1549.638,551.181,1498.746,555.571C1447.854,559.962,1388.841,559.962,1337.251,559.962C1285.661,559.962,1241.495,559.962,1215.245,559.962C1188.995,559.962,1180.661,559.962,1154.195,518.386C1127.728,476.81,1083.128,393.658,1060.828,352.082L1038.528,310.506" id="my-svg-L_T3_AGG_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_T3_AGG_0" data-points="W3sieCI6MTYzNS4xNzk2ODc1LCJ5Ijo1MzMuNjE3NTY3NTU3ODY1OX0seyJ4IjoxNTA2Ljg2NzE4NzUsInkiOjU1OS45NjIyMTU0MjM1ODR9LHsieCI6MTMyOS44MjgxMjUsInkiOjU1OS45NjIyMTU0MjM1ODR9LHsieCI6MTE5Ny4zMjgxMjUsInkiOjU1OS45NjIyMTU0MjM1ODR9LHsieCI6MTE3Mi4zMjgxMjUsInkiOjU1OS45NjIyMTU0MjM1ODR9LHsieCI6MTAzNi42MzczNDU3NDUyMDIsInkiOjMwNi45ODExMDc3MTE3OTJ9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M1147.328,270.981L1151.495,270.981C1155.661,270.981,1163.995,270.981,1172.328,270.981C1180.661,270.981,1188.995,270.981,1196.682,271.874C1204.369,272.767,1211.41,274.553,1214.93,275.446L1218.451,276.339" id="my-svg-L_AGG_REG_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_AGG_REG_0" data-points="W3sieCI6MTE0Ny4zMjgxMjUsInkiOjI3MC45ODExMDc3MTE3OTJ9LHsieCI6MTE3Mi4zMjgxMjUsInkiOjI3MC45ODExMDc3MTE3OTJ9LHsieCI6MTE5Ny4zMjgxMjUsInkiOjI3MC45ODExMDc3MTE3OTJ9LHsieCI6MTIyMi4zMjgxMjUsInkiOjI3Ny4zMjE5NzkxOTg4MTU3fV0=" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M1222.328,328.041L1218.161,332.198C1213.995,336.355,1205.661,344.668,1197.328,348.824C1188.995,352.981,1180.661,352.981,1150.661,352.981C1120.661,352.981,1068.995,352.981,1017.328,352.981C965.661,352.981,913.995,352.981,869.982,352.981C825.969,352.981,789.609,352.981,753.25,352.981C716.891,352.981,680.531,352.981,653.887,349.424C627.243,345.867,610.315,338.752,601.851,335.195L593.386,331.638" id="my-svg-L_REG_T1_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_REG_T1_0" data-points="W3sieCI6MTIyMi4zMjgxMjUsInkiOjMyOC4wNDE0NTc1NTYxOTYzNX0seyJ4IjoxMTk3LjMyODEyNSwieSI6MzUyLjk4MTEwNzcxMTc5Mn0seyJ4IjoxMTcyLjMyODEyNSwieSI6MzUyLjk4MTEwNzcxMTc5Mn0seyJ4IjoxMDE3LjMyODEyNSwieSI6MzUyLjk4MTEwNzcxMTc5Mn0seyJ4Ijo4NjIuMzI4MTI1LCJ5IjozNTIuOTgxMTA3NzExNzkyfSx7IngiOjc1My4yNSwieSI6MzUyLjk4MTEwNzcxMTc5Mn0seyJ4Ijo2NDQuMTcxODc1LCJ5IjozNTIuOTgxMTA3NzExNzkyfSx7IngiOjU4OS42OTg3ODM3NjM2NDE0LCJ5IjozMzAuMDg3NzI2NTkzMDE3Nn1d" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M1380.016,254.203L1401.158,231.904C1422.3,209.604,1464.584,165.005,1503.296,140.463C1542.008,115.921,1577.149,111.435,1594.72,109.193L1612.29,106.95" id="my-svg-L_REG_T2_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_REG_T2_0" data-points="W3sieCI6MTM4MC4wMTY0Njk2MzQyMzc5LCJ5IjoyNTQuMjAzMTQ1MzE2NDg3NDJ9LHsieCI6MTUwNi44NjcxODc1LCJ5IjoxMjAuNDA1ODY2NjIyOTI0OH0seyJ4IjoxNjE2LjI1NzgxMjUsInkiOjEwNi40NDM1NDUzMjk2NTUyNX1d" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M1372.942,355.474L1395.263,382.727C1417.583,409.98,1462.225,464.487,1505.265,491.74C1548.305,518.994,1589.742,518.994,1610.461,518.994L1631.18,518.994" id="my-svg-L_REG_T3_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_REG_T3_0" data-points="W3sieCI6MTM3Mi45NDE2MDMyMzI0MzU3LCJ5IjozNTUuNDczODcyMjQ0MjMwM30seyJ4IjoxNTA2Ljg2NzE4NzUsInkiOjUxOC45OTM1OTMyMTU5NDI0fSx7IngiOjE2MzUuMTc5Njg3NSwieSI6NTE4Ljk5MzU5MzIxNTk0MjR9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M1437.328,304.588L1448.918,304.588C1460.508,304.588,1483.688,304.588,1506.201,304.588C1528.714,304.588,1550.56,304.588,1561.483,304.588L1572.406,304.588" id="my-svg-L_REG_DASH_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_REG_DASH_0" data-points="W3sieCI6MTQzNy4zMjgxMjUsInkiOjMwNC41ODc3MjY1OTMwMTc2fSx7IngiOjE1MDYuODY3MTg3NSwieSI6MzA0LjU4NzcyNjU5MzAxNzZ9LHsieCI6MTU3Ni40MDYyNSwieSI6MzA0LjU4NzcyNjU5MzAxNzZ9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/></g><g class="edgeLabels"><g class="edgeLabel"><g class="label" data-id="L_S1_D1_0" transform="translate(0, 0)"><text y="-10.1" text-anchor="middle"><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em" text-anchor="middle"/></text></g></g><g><rect class="background" style="stroke: none"/></g><g class="edgeLabel"><g class="label" data-id="L_D1_T1_0" transform="translate(0, 0)"><text y="-10.1" text-anchor="middle"><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em" text-anchor="middle"/></text></g></g><g><rect class="background" style="stroke: none"/></g><g class="edgeLabel"><g class="label" data-id="L_S2_D2_0" transform="translate(0, 0)"><text y="-10.1" text-anchor="middle"><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em" text-anchor="middle"/></text></g></g><g><rect class="background" style="stroke: none"/></g><g class="edgeLabel"><g class="label" data-id="L_D2_T2_0" transform="translate(0, 0)"><text y="-10.1" text-anchor="middle"><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em" text-anchor="middle"/></text></g></g><g><rect class="background" style="stroke: none"/></g><g class="edgeLabel"><g class="label" data-id="L_D3_T3_0" transform="translate(0, 0)"><text y="-10.1" text-anchor="middle"><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em" text-anchor="middle"/></text></g></g><g><rect class="background" style="stroke: none"/></g><g class="edgeLabel" transform="translate(753.25, 270.981107711792)"><g class="label" data-id="L_T1_AGG_0" transform="translate(0, -8.500000953674316)"><g><rect class="background" style="" x="-84.078125" y="-1.9999990463256836" width="168.15625" height="21"/><text y="-10.1" text-anchor="middle" style=""><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em" text-anchor="middle"><tspan font-style="normal" class="text-inner-tspan" font-weight="normal">masked</tspan><tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> update</tspan><tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> (14.7</tspan><tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> KB)</tspan></tspan></text></g></g></g><g class="edgeLabel" transform="translate(1329.828125, 161.3744888305664)"><g class="label" data-id="L_T2_AGG_0" transform="translate(0, -8.500000953674316)"><g><rect class="background" style="" x="-52.7265625" y="-1.9999990463256836" width="105.453125" height="21"/><text y="-10.1" text-anchor="middle" style=""><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em" text-anchor="middle"><tspan font-style="normal" class="text-inner-tspan" font-weight="normal">masked</tspan><tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> update</tspan></tspan></text></g></g></g><g class="edgeLabel" transform="translate(1329.828125, 559.962215423584)"><g class="label" data-id="L_T3_AGG_0" transform="translate(0, -8.500000953674316)"><g><rect class="background" style="" x="-52.7265625" y="-1.9999990463256836" width="105.453125" height="21"/><text y="-10.1" text-anchor="middle" style=""><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em" text-anchor="middle"><tspan font-style="normal" class="text-inner-tspan" font-weight="normal">masked</tspan><tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> update</tspan></tspan></text></g></g></g><g class="edgeLabel"><g class="label" data-id="L_AGG_REG_0" transform="translate(0, 0)"><text y="-10.1" text-anchor="middle"><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em" text-anchor="middle"/></text></g></g><g><rect class="background" style="stroke: none"/></g><g class="edgeLabel" transform="translate(1017.328125, 352.981107711792)"><g class="label" data-id="L_REG_T1_0" transform="translate(0, -9.000000953674316)"><g><rect class="background" style="" x="-44.5390625" y="-1.9999990463256836" width="89.078125" height="22"/><text y="-10.1" text-anchor="middle" style=""><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em" text-anchor="middle"><tspan font-style="normal" class="text-inner-tspan" font-weight="normal">global</tspan><tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> model</tspan></tspan></text></g></g></g><g class="edgeLabel" transform="translate(1481.37844, 147.29042)"><g class="label" data-id="L_REG_T2_0" transform="translate(0, -9.000000953674316)"><g><rect class="background" style="" x="-44.5390625" y="-1.9999990463256836" width="89.078125" height="22"/><text y="-10.1" text-anchor="middle" style=""><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em" text-anchor="middle"><tspan font-style="normal" class="text-inner-tspan" font-weight="normal">global</tspan><tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> model</tspan></tspan></text></g></g></g><g class="edgeLabel" transform="translate(1506.8671875, 518.9935932159424)"><g class="label" data-id="L_REG_T3_0" transform="translate(0, -9.000000953674316)"><g><rect class="background" style="" x="-44.5390625" y="-1.9999990463256836" width="89.078125" height="22"/><text y="-10.1" text-anchor="middle" style=""><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em" text-anchor="middle"><tspan font-style="normal" class="text-inner-tspan" font-weight="normal">global</tspan><tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> model</tspan></tspan></text></g></g></g><g class="edgeLabel"><g class="label" data-id="L_REG_DASH_0" transform="translate(0, 0)"><text y="-10.1" text-anchor="middle"><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em" text-anchor="middle"/></text></g></g><g><rect class="background" style="stroke: none"/></g></g><g class="nodes"><g class="node default" id="my-svg-flowchart-S1-0" data-look="classic" transform="translate(125.4609375, 304.5877265930176)"><path d="M0,14.916813713133351 a92.4609375,14.916813713133351 0,0,0 184.921875,0 a92.4609375,14.916813713133351 0,0,0 -184.921875,0 l0,50.91681371313335 a92.4609375,14.916813713133351 0,0,0 184.921875,0 l0,-50.91681371313335" class="basic label-container outer-path" style="" transform="translate(-92.4609375, -40.375220569700026)"/><g class="label" style="" transform="translate(-84.9609375, -0.5)"><rect/><foreignObject width="169.921875" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Loop detectors / cameras</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-D1-1" data-look="classic" transform="translate(328.3984375, 304.5877265930176)"><path d="M0,12.294326916968426 a60.4765625,12.294326916968426 0,0,0 120.953125,0 a60.4765625,12.294326916968426 0,0,0 -120.953125,0 l0,48.29432691696843 a60.4765625,12.294326916968426 0,0,0 120.953125,0 l0,-48.29432691696843" class="basic label-container outer-path" style="" transform="translate(-60.4765625, -36.441490375452645)"/><g class="label" style="" transform="translate(-52.9765625, -0.5)"><rect/><foreignObject width="105.953125" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Local data store</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-T1-3" data-look="classic" transform="translate(529.0234375, 304.5877265930176)"><rect class="basic label-container" style="" x="-90.1484375" y="-25.5" width="180.296875" height="51"/><g class="label" style="" transform="translate(-60.1484375, -10.5)"><rect/><foreignObject width="120.296875" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Local trainer: GRU</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-S2-4" data-look="classic" transform="translate(1017.328125, 79.4372444152832)"><path d="M0,8.881366860090264 a34.4375,8.881366860090264 0,0,0 68.875,0 a34.4375,8.881366860090264 0,0,0 -68.875,0 l0,44.88136686009027 a34.4375,8.881366860090264 0,0,0 68.875,0 l0,-44.88136686009027" class="basic label-container outer-path" style="" transform="translate(-34.4375, -31.322050290135397)"/><g class="label" style="" transform="translate(-26.9375, -0.5)"><rect/><foreignObject width="53.875" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Sensors</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-D2-5" data-look="classic" transform="translate(1329.828125, 79.4372444152832)"><path d="M0,12.294326916968426 a60.4765625,12.294326916968426 0,0,0 120.953125,0 a60.4765625,12.294326916968426 0,0,0 -120.953125,0 l0,48.29432691696843 a60.4765625,12.294326916968426 0,0,0 120.953125,0 l0,-48.29432691696843" class="basic label-container outer-path" style="" transform="translate(-60.4765625, -36.441490375452645)"/><g class="label" style="" transform="translate(-52.9765625, -0.5)"><rect/><foreignObject width="105.953125" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Local data store</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-T2-7" data-look="classic" transform="translate(1706.40625, 94.9372444152832)"><rect class="basic label-container" style="" x="-90.1484375" y="-25.5" width="180.296875" height="51"/><g class="label" style="" transform="translate(-60.1484375, -10.5)"><rect/><foreignObject width="120.296875" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Local trainer: GRU</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-D3-8" data-look="classic" transform="translate(1329.828125, 478.0249710083008)"><path d="M0,12.294326916968426 a60.4765625,12.294326916968426 0,0,0 120.953125,0 a60.4765625,12.294326916968426 0,0,0 -120.953125,0 l0,48.29432691696843 a60.4765625,12.294326916968426 0,0,0 120.953125,0 l0,-48.29432691696843" class="basic label-container outer-path" style="" transform="translate(-60.4765625, -36.441490375452645)"/><g class="label" style="" transform="translate(-52.9765625, -0.5)"><rect/><foreignObject width="105.953125" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Local data store</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-T3-9" data-look="classic" transform="translate(1706.40625, 518.9935932159424)"><rect class="basic label-container" style="" x="-71.2265625" y="-25.5" width="142.453125" height="51"/><g class="label" style="" transform="translate(-41.2265625, -10.5)"><rect/><foreignObject width="82.453125" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Local trainer</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-AGG-11" data-look="classic" transform="translate(1017.328125, 270.981107711792)"><rect class="basic label-container" style="" x="-130" y="-36" width="260" height="72"/><g class="label" style="" transform="translate(-100, -21)"><rect/><foreignObject width="200" height="42"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table; white-space: break-spaces; line-height: 1.5; max-width: 200px; text-align: center; width: 200px;"><span class="nodeLabel"><p>Secure aggregator: FedAvg / FedProx</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-REG-17" data-look="classic" transform="translate(1329.828125, 304.5877265930176)"><path d="M0,15.808823529411764 a107.5,15.808823529411764 0,0,0 215,0 a107.5,15.808823529411764 0,0,0 -215,0 l0,72.80882352941177 a107.5,15.808823529411764 0,0,0 215,0 l0,-72.80882352941177" class="basic label-container outer-path" style="" transform="translate(-107.5, -52.21323529411765)"/><g class="label" style="" transform="translate(-100, -11)"><rect/><foreignObject width="200" height="42"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table; white-space: break-spaces; line-height: 1.5; max-width: 200px; text-align: center; width: 200px;"><span class="nodeLabel"><p>Model registry: global model v1, v2 ...</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-DASH-25" data-look="classic" transform="translate(1706.40625, 304.5877265930176)"><rect class="basic label-container" style="" x="-130" y="-36" width="260" height="72"/><g class="label" style="" transform="translate(-100, -21)"><rect/><foreignObject width="200" height="42"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table; white-space: break-spaces; line-height: 1.5; max-width: 200px; text-align: center; width: 200px;"><span class="nodeLabel"><p>FedFlow dashboard: forecasts, alerts, signal plans</p></span></div></foreignObject></g></g></g></g></g><defs><filter id="my-svg-drop-shadow" height="130%" width="130%"><feDropShadow dx="4" dy="4" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"/></filter></defs><defs><filter id="my-svg-drop-shadow-small" height="150%" width="150%"><feDropShadow dx="2" dy="2" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"/></filter></defs><linearGradient id="my-svg-gradient" gradientUnits="objectBoundingBox" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#0369a1" stop-opacity="1"/><stop offset="100%" stop-color="hsl(138.4615384615, 36.4705882353%, 86.6666666667%)" stop-opacity="1"/></linearGradient></svg></div>
+
+<p>Three layers:</p>
+<ol>
+<li><strong>Edge / sensing</strong>: loop detectors (or camera counts) aggregate vehicles every 5 minutes. Our small MLP model (3,236 parameters) is light enough for a Raspberry-Pi-class device.</li>
+<li><strong>Zone server = federated client</strong>: holds the zone's private data, trains locally, protects the update (clip → optional noise → mask) and serves forecasts for its own junctions.</li>
+<li><strong>Coordinator</strong>: only adds up masked updates, keeps versioned global models and feeds the city dashboard.</li>
+</ol>
+<h2>One federated round</h2>
+<div class="dia"><svg id="my-svg" width="100%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="max-width: 894px; background-color: transparent;" viewBox="-139 -10 894 731" role="graphics-document document" aria-roledescription="sequence"><g><rect x="471.5" y="645" fill="#eaeaea" stroke="#666" width="150" height="65" name="B" rx="3" ry="3" class="actor actor-bottom"/><text x="546.5" y="677.5" dominant-baseline="central" alignment-baseline="central" class="actor actor-box" style="text-anchor: middle; font-size: 16px; font-weight: 400;"><tspan x="546.5" dy="0">Zone B</tspan></text></g><g><rect x="254" y="645" fill="#eaeaea" stroke="#666" width="150" height="65" name="A" rx="3" ry="3" class="actor actor-bottom"/><text x="329" y="677.5" dominant-baseline="central" alignment-baseline="central" class="actor actor-box" style="text-anchor: middle; font-size: 16px; font-weight: 400;"><tspan x="329" dy="0">Zone A</tspan></text></g><g><rect x="0" y="645" fill="#eaeaea" stroke="#666" width="150" height="65" name="S" rx="3" ry="3" class="actor actor-bottom"/><text x="75" y="677.5" dominant-baseline="central" alignment-baseline="central" class="actor actor-box" style="text-anchor: middle; font-size: 16px; font-weight: 400;"><tspan x="75" dy="0">Coordinator</tspan></text></g><g><line id="actor2" x1="546.5" y1="65" x2="546.5" y2="645" class="actor-line 200" stroke-width="0.5px" stroke="#999" name="B" data-et="life-line" data-id="B"/><g id="root-2" data-et="participant" data-type="participant" data-id="B"><rect x="471.5" y="0" fill="#eaeaea" stroke="#666" width="150" height="65" name="B" rx="3" ry="3" class="actor actor-top"/><text x="546.5" y="32.5" dominant-baseline="central" alignment-baseline="central" class="actor actor-box" style="text-anchor: middle; font-size: 16px; font-weight: 400;"><tspan x="546.5" dy="0">Zone B</tspan></text></g></g><g><line id="actor1" x1="329" y1="65" x2="329" y2="645" class="actor-line 200" stroke-width="0.5px" stroke="#999" name="A" data-et="life-line" data-id="A"/><g id="root-1" data-et="participant" data-type="participant" data-id="A"><rect x="254" y="0" fill="#eaeaea" stroke="#666" width="150" height="65" name="A" rx="3" ry="3" class="actor actor-top"/><text x="329" y="32.5" dominant-baseline="central" alignment-baseline="central" class="actor actor-box" style="text-anchor: middle; font-size: 16px; font-weight: 400;"><tspan x="329" dy="0">Zone A</tspan></text></g></g><g><line id="actor0" x1="75" y1="65" x2="75" y2="645" class="actor-line 200" stroke-width="0.5px" stroke="#999" name="S" data-et="life-line" data-id="S"/><g id="root-0" data-et="participant" data-type="participant" data-id="S"><rect x="0" y="0" fill="#eaeaea" stroke="#666" width="150" height="65" name="S" rx="3" ry="3" class="actor actor-top"/><text x="75" y="32.5" dominant-baseline="central" alignment-baseline="central" class="actor actor-box" style="text-anchor: middle; font-size: 16px; font-weight: 400;"><tspan x="75" dy="0">Coordinator</tspan></text></g></g><style>#my-svg{font-family:Inter,sans-serif;font-size:14px;fill:#0f172a;}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#my-svg .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#my-svg .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#my-svg .error-icon{fill:#fff7ed;}#my-svg .error-text{fill:#000812;stroke:#000812;}#my-svg .edge-thickness-normal{stroke-width:1px;}#my-svg .edge-thickness-thick{stroke-width:3.5px;}#my-svg .edge-pattern-solid{stroke-dasharray:0;}#my-svg .edge-thickness-invisible{stroke-width:0;fill:none;}#my-svg .edge-pattern-dashed{stroke-dasharray:3;}#my-svg .edge-pattern-dotted{stroke-dasharray:2;}#my-svg .marker{fill:#475569;stroke:#475569;}#my-svg .marker.cross{stroke:#475569;}#my-svg svg{font-family:Inter,sans-serif;font-size:14px;}#my-svg p{margin:0;}#my-svg .actor{stroke:#0369a1;fill:#eef2ff;stroke-width:1;}#my-svg rect.actor.outer-path[data-look="neo"]{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg rect.note[data-look="neo"]{stroke:hsl(52.6829268293, 60%, 73.9215686275%);fill:#fff5ad;filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg text.actor&gt;tspan{fill:#0f172a;stroke:none;}#my-svg .actor-line{stroke:#0369a1;}#my-svg .innerArc{stroke-width:1.5;stroke-dasharray:none;}#my-svg .messageLine0{stroke-width:1.5;stroke-dasharray:none;stroke:#0f172a;}#my-svg .messageLine1{stroke-width:1.5;stroke-dasharray:2,2;stroke:#0f172a;}#my-svg [id$="-arrowhead"] path{fill:#0f172a;stroke:#0f172a;}#my-svg .sequenceNumber{fill:#b8aa96;}#my-svg [id$="-sequencenumber"]{fill:#0f172a;}#my-svg [id$="-crosshead"] path{fill:#0f172a;stroke:#0f172a;}#my-svg .messageText{fill:#0f172a;stroke:none;}#my-svg .labelBox{stroke:#0369a1;fill:#eef2ff;filter:none;}#my-svg .labelText,#my-svg .labelText&gt;tspan{fill:#0f172a;stroke:none;}#my-svg .loopText,#my-svg .loopText&gt;tspan{fill:#0f172a;stroke:none;}#my-svg .sectionTitle,#my-svg .sectionTitle&gt;tspan{fill:#0f172a;stroke:none;}#my-svg .loopLine{stroke-width:2px;stroke-dasharray:2,2;stroke:#0369a1;fill:#0369a1;}#my-svg .note{stroke:hsl(52.6829268293, 60%, 73.9215686275%);fill:#fff5ad;}#my-svg .noteText,#my-svg .noteText&gt;tspan{fill:#333;stroke:none;font-weight:normal;}#my-svg .activation0{fill:#f0fdf4;stroke:hsl(138.4615384615, 76.4705882353%, 86.6666666667%);}#my-svg .activation1{fill:#f0fdf4;stroke:hsl(138.4615384615, 76.4705882353%, 86.6666666667%);}#my-svg .activation2{fill:#f0fdf4;stroke:hsl(138.4615384615, 76.4705882353%, 86.6666666667%);}#my-svg .actorPopupMenu{position:absolute;}#my-svg .actorPopupMenuPanel{position:absolute;fill:#eef2ff;box-shadow:0px 8px 16px 0px rgba(0,0,0,0.2);filter:drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));}#my-svg .actor-man circle,#my-svg line{fill:#eef2ff;stroke-width:2px;}#my-svg g rect.rect{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));stroke:#0369a1;}#my-svg .node .neo-node{stroke:#0369a1;}#my-svg [data-look="neo"].node rect,#my-svg [data-look="neo"].cluster rect,#my-svg [data-look="neo"].node polygon{stroke:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].swimlane.cluster rect{filter:none;}#my-svg [data-look="neo"].node path{stroke:url(#my-svg-gradient);stroke-width:1px;}#my-svg [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].node .neo-line path{stroke:#0369a1;filter:none;}#my-svg [data-look="neo"].node circle{stroke:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].node circle .state-start{fill:#000000;}#my-svg [data-look="neo"].icon-shape .icon{fill:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].icon-shape .icon-neo path{stroke:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg :root{--mermaid-font-family:"trebuchet ms",verdana,arial,sans-serif;}</style><g/><defs><symbol id="my-svg-computer" width="24" height="24"><path transform="scale(.5)" d="M2 2v13h20v-13h-20zm18 11h-16v-9h16v9zm-10.228 6l.466-1h3.524l.467 1h-4.457zm14.228 3h-24l2-6h2.104l-1.33 4h18.45l-1.297-4h2.073l2 6zm-5-10h-14v-7h14v7z"/></symbol></defs><defs><symbol id="my-svg-database" fill-rule="evenodd" clip-rule="evenodd"><path transform="scale(.5)" d="M12.258.001l.256.004.255.005.253.008.251.01.249.012.247.015.246.016.242.019.241.02.239.023.236.024.233.027.231.028.229.031.225.032.223.034.22.036.217.038.214.04.211.041.208.043.205.045.201.046.198.048.194.05.191.051.187.053.183.054.18.056.175.057.172.059.168.06.163.061.16.063.155.064.15.066.074.033.073.033.071.034.07.034.069.035.068.035.067.035.066.035.064.036.064.036.062.036.06.036.06.037.058.037.058.037.055.038.055.038.053.038.052.038.051.039.05.039.048.039.047.039.045.04.044.04.043.04.041.04.04.041.039.041.037.041.036.041.034.041.033.042.032.042.03.042.029.042.027.042.026.043.024.043.023.043.021.043.02.043.018.044.017.043.015.044.013.044.012.044.011.045.009.044.007.045.006.045.004.045.002.045.001.045v17l-.001.045-.002.045-.004.045-.006.045-.007.045-.009.044-.011.045-.012.044-.013.044-.015.044-.017.043-.018.044-.02.043-.021.043-.023.043-.024.043-.026.043-.027.042-.029.042-.03.042-.032.042-.033.042-.034.041-.036.041-.037.041-.039.041-.04.041-.041.04-.043.04-.044.04-.045.04-.047.039-.048.039-.05.039-.051.039-.052.038-.053.038-.055.038-.055.038-.058.037-.058.037-.06.037-.06.036-.062.036-.064.036-.064.036-.066.035-.067.035-.068.035-.069.035-.07.034-.071.034-.073.033-.074.033-.15.066-.155.064-.16.063-.163.061-.168.06-.172.059-.175.057-.18.056-.183.054-.187.053-.191.051-.194.05-.198.048-.201.046-.205.045-.208.043-.211.041-.214.04-.217.038-.22.036-.223.034-.225.032-.229.031-.231.028-.233.027-.236.024-.239.023-.241.02-.242.019-.246.016-.247.015-.249.012-.251.01-.253.008-.255.005-.256.004-.258.001-.258-.001-.256-.004-.255-.005-.253-.008-.251-.01-.249-.012-.247-.015-.245-.016-.243-.019-.241-.02-.238-.023-.236-.024-.234-.027-.231-.028-.228-.031-.226-.032-.223-.034-.22-.036-.217-.038-.214-.04-.211-.041-.208-.043-.204-.045-.201-.046-.198-.048-.195-.05-.19-.051-.187-.053-.184-.054-.179-.056-.176-.057-.172-.059-.167-.06-.164-.061-.159-.063-.155-.064-.151-.066-.074-.033-.072-.033-.072-.034-.07-.034-.069-.035-.068-.035-.067-.035-.066-.035-.064-.036-.063-.036-.062-.036-.061-.036-.06-.037-.058-.037-.057-.037-.056-.038-.055-.038-.053-.038-.052-.038-.051-.039-.049-.039-.049-.039-.046-.039-.046-.04-.044-.04-.043-.04-.041-.04-.04-.041-.039-.041-.037-.041-.036-.041-.034-.041-.033-.042-.032-.042-.03-.042-.029-.042-.027-.042-.026-.043-.024-.043-.023-.043-.021-.043-.02-.043-.018-.044-.017-.043-.015-.044-.013-.044-.012-.044-.011-.045-.009-.044-.007-.045-.006-.045-.004-.045-.002-.045-.001-.045v-17l.001-.045.002-.045.004-.045.006-.045.007-.045.009-.044.011-.045.012-.044.013-.044.015-.044.017-.043.018-.044.02-.043.021-.043.023-.043.024-.043.026-.043.027-.042.029-.042.03-.042.032-.042.033-.042.034-.041.036-.041.037-.041.039-.041.04-.041.041-.04.043-.04.044-.04.046-.04.046-.039.049-.039.049-.039.051-.039.052-.038.053-.038.055-.038.056-.038.057-.037.058-.037.06-.037.061-.036.062-.036.063-.036.064-.036.066-.035.067-.035.068-.035.069-.035.07-.034.072-.034.072-.033.074-.033.151-.066.155-.064.159-.063.164-.061.167-.06.172-.059.176-.057.179-.056.184-.054.187-.053.19-.051.195-.05.198-.048.201-.046.204-.045.208-.043.211-.041.214-.04.217-.038.22-.036.223-.034.226-.032.228-.031.231-.028.234-.027.236-.024.238-.023.241-.02.243-.019.245-.016.247-.015.249-.012.251-.01.253-.008.255-.005.256-.004.258-.001.258.001zm-9.258 20.499v.01l.001.021.003.021.004.022.005.021.006.022.007.022.009.023.01.022.011.023.012.023.013.023.015.023.016.024.017.023.018.024.019.024.021.024.022.025.023.024.024.025.052.049.056.05.061.051.066.051.07.051.075.051.079.052.084.052.088.052.092.052.097.052.102.051.105.052.11.052.114.051.119.051.123.051.127.05.131.05.135.05.139.048.144.049.147.047.152.047.155.047.16.045.163.045.167.043.171.043.176.041.178.041.183.039.187.039.19.037.194.035.197.035.202.033.204.031.209.03.212.029.216.027.219.025.222.024.226.021.23.02.233.018.236.016.24.015.243.012.246.01.249.008.253.005.256.004.259.001.26-.001.257-.004.254-.005.25-.008.247-.011.244-.012.241-.014.237-.016.233-.018.231-.021.226-.021.224-.024.22-.026.216-.027.212-.028.21-.031.205-.031.202-.034.198-.034.194-.036.191-.037.187-.039.183-.04.179-.04.175-.042.172-.043.168-.044.163-.045.16-.046.155-.046.152-.047.148-.048.143-.049.139-.049.136-.05.131-.05.126-.05.123-.051.118-.052.114-.051.11-.052.106-.052.101-.052.096-.052.092-.052.088-.053.083-.051.079-.052.074-.052.07-.051.065-.051.06-.051.056-.05.051-.05.023-.024.023-.025.021-.024.02-.024.019-.024.018-.024.017-.024.015-.023.014-.024.013-.023.012-.023.01-.023.01-.022.008-.022.006-.022.006-.022.004-.022.004-.021.001-.021.001-.021v-4.127l-.077.055-.08.053-.083.054-.085.053-.087.052-.09.052-.093.051-.095.05-.097.05-.1.049-.102.049-.105.048-.106.047-.109.047-.111.046-.114.045-.115.045-.118.044-.12.043-.122.042-.124.042-.126.041-.128.04-.13.04-.132.038-.134.038-.135.037-.138.037-.139.035-.142.035-.143.034-.144.033-.147.032-.148.031-.15.03-.151.03-.153.029-.154.027-.156.027-.158.026-.159.025-.161.024-.162.023-.163.022-.165.021-.166.02-.167.019-.169.018-.169.017-.171.016-.173.015-.173.014-.175.013-.175.012-.177.011-.178.01-.179.008-.179.008-.181.006-.182.005-.182.004-.184.003-.184.002h-.37l-.184-.002-.184-.003-.182-.004-.182-.005-.181-.006-.179-.008-.179-.008-.178-.01-.176-.011-.176-.012-.175-.013-.173-.014-.172-.015-.171-.016-.17-.017-.169-.018-.167-.019-.166-.02-.165-.021-.163-.022-.162-.023-.161-.024-.159-.025-.157-.026-.156-.027-.155-.027-.153-.029-.151-.03-.15-.03-.148-.031-.146-.032-.145-.033-.143-.034-.141-.035-.14-.035-.137-.037-.136-.037-.134-.038-.132-.038-.13-.04-.128-.04-.126-.041-.124-.042-.122-.042-.12-.044-.117-.043-.116-.045-.113-.045-.112-.046-.109-.047-.106-.047-.105-.048-.102-.049-.1-.049-.097-.05-.095-.05-.093-.052-.09-.051-.087-.052-.085-.053-.083-.054-.08-.054-.077-.054v4.127zm0-5.654v.011l.001.021.003.021.004.021.005.022.006.022.007.022.009.022.01.022.011.023.012.023.013.023.015.024.016.023.017.024.018.024.019.024.021.024.022.024.023.025.024.024.052.05.056.05.061.05.066.051.07.051.075.052.079.051.084.052.088.052.092.052.097.052.102.052.105.052.11.051.114.051.119.052.123.05.127.051.131.05.135.049.139.049.144.048.147.048.152.047.155.046.16.045.163.045.167.044.171.042.176.042.178.04.183.04.187.038.19.037.194.036.197.034.202.033.204.032.209.03.212.028.216.027.219.025.222.024.226.022.23.02.233.018.236.016.24.014.243.012.246.01.249.008.253.006.256.003.259.001.26-.001.257-.003.254-.006.25-.008.247-.01.244-.012.241-.015.237-.016.233-.018.231-.02.226-.022.224-.024.22-.025.216-.027.212-.029.21-.03.205-.032.202-.033.198-.035.194-.036.191-.037.187-.039.183-.039.179-.041.175-.042.172-.043.168-.044.163-.045.16-.045.155-.047.152-.047.148-.048.143-.048.139-.05.136-.049.131-.05.126-.051.123-.051.118-.051.114-.052.11-.052.106-.052.101-.052.096-.052.092-.052.088-.052.083-.052.079-.052.074-.051.07-.052.065-.051.06-.05.056-.051.051-.049.023-.025.023-.024.021-.025.02-.024.019-.024.018-.024.017-.024.015-.023.014-.023.013-.024.012-.022.01-.023.01-.023.008-.022.006-.022.006-.022.004-.021.004-.022.001-.021.001-.021v-4.139l-.077.054-.08.054-.083.054-.085.052-.087.053-.09.051-.093.051-.095.051-.097.05-.1.049-.102.049-.105.048-.106.047-.109.047-.111.046-.114.045-.115.044-.118.044-.12.044-.122.042-.124.042-.126.041-.128.04-.13.039-.132.039-.134.038-.135.037-.138.036-.139.036-.142.035-.143.033-.144.033-.147.033-.148.031-.15.03-.151.03-.153.028-.154.028-.156.027-.158.026-.159.025-.161.024-.162.023-.163.022-.165.021-.166.02-.167.019-.169.018-.169.017-.171.016-.173.015-.173.014-.175.013-.175.012-.177.011-.178.009-.179.009-.179.007-.181.007-.182.005-.182.004-.184.003-.184.002h-.37l-.184-.002-.184-.003-.182-.004-.182-.005-.181-.007-.179-.007-.179-.009-.178-.009-.176-.011-.176-.012-.175-.013-.173-.014-.172-.015-.171-.016-.17-.017-.169-.018-.167-.019-.166-.02-.165-.021-.163-.022-.162-.023-.161-.024-.159-.025-.157-.026-.156-.027-.155-.028-.153-.028-.151-.03-.15-.03-.148-.031-.146-.033-.145-.033-.143-.033-.141-.035-.14-.036-.137-.036-.136-.037-.134-.038-.132-.039-.13-.039-.128-.04-.126-.041-.124-.042-.122-.043-.12-.043-.117-.044-.116-.044-.113-.046-.112-.046-.109-.046-.106-.047-.105-.048-.102-.049-.1-.049-.097-.05-.095-.051-.093-.051-.09-.051-.087-.053-.085-.052-.083-.054-.08-.054-.077-.054v4.139zm0-5.666v.011l.001.02.003.022.004.021.005.022.006.021.007.022.009.023.01.022.011.023.012.023.013.023.015.023.016.024.017.024.018.023.019.024.021.025.022.024.023.024.024.025.052.05.056.05.061.05.066.051.07.051.075.052.079.051.084.052.088.052.092.052.097.052.102.052.105.051.11.052.114.051.119.051.123.051.127.05.131.05.135.05.139.049.144.048.147.048.152.047.155.046.16.045.163.045.167.043.171.043.176.042.178.04.183.04.187.038.19.037.194.036.197.034.202.033.204.032.209.03.212.028.216.027.219.025.222.024.226.021.23.02.233.018.236.017.24.014.243.012.246.01.249.008.253.006.256.003.259.001.26-.001.257-.003.254-.006.25-.008.247-.01.244-.013.241-.014.237-.016.233-.018.231-.02.226-.022.224-.024.22-.025.216-.027.212-.029.21-.03.205-.032.202-.033.198-.035.194-.036.191-.037.187-.039.183-.039.179-.041.175-.042.172-.043.168-.044.163-.045.16-.045.155-.047.152-.047.148-.048.143-.049.139-.049.136-.049.131-.051.126-.05.123-.051.118-.052.114-.051.11-.052.106-.052.101-.052.096-.052.092-.052.088-.052.083-.052.079-.052.074-.052.07-.051.065-.051.06-.051.056-.05.051-.049.023-.025.023-.025.021-.024.02-.024.019-.024.018-.024.017-.024.015-.023.014-.024.013-.023.012-.023.01-.022.01-.023.008-.022.006-.022.006-.022.004-.022.004-.021.001-.021.001-.021v-4.153l-.077.054-.08.054-.083.053-.085.053-.087.053-.09.051-.093.051-.095.051-.097.05-.1.049-.102.048-.105.048-.106.048-.109.046-.111.046-.114.046-.115.044-.118.044-.12.043-.122.043-.124.042-.126.041-.128.04-.13.039-.132.039-.134.038-.135.037-.138.036-.139.036-.142.034-.143.034-.144.033-.147.032-.148.032-.15.03-.151.03-.153.028-.154.028-.156.027-.158.026-.159.024-.161.024-.162.023-.163.023-.165.021-.166.02-.167.019-.169.018-.169.017-.171.016-.173.015-.173.014-.175.013-.175.012-.177.01-.178.01-.179.009-.179.007-.181.006-.182.006-.182.004-.184.003-.184.001-.185.001-.185-.001-.184-.001-.184-.003-.182-.004-.182-.006-.181-.006-.179-.007-.179-.009-.178-.01-.176-.01-.176-.012-.175-.013-.173-.014-.172-.015-.171-.016-.17-.017-.169-.018-.167-.019-.166-.02-.165-.021-.163-.023-.162-.023-.161-.024-.159-.024-.157-.026-.156-.027-.155-.028-.153-.028-.151-.03-.15-.03-.148-.032-.146-.032-.145-.033-.143-.034-.141-.034-.14-.036-.137-.036-.136-.037-.134-.038-.132-.039-.13-.039-.128-.041-.126-.041-.124-.041-.122-.043-.12-.043-.117-.044-.116-.044-.113-.046-.112-.046-.109-.046-.106-.048-.105-.048-.102-.048-.1-.05-.097-.049-.095-.051-.093-.051-.09-.052-.087-.052-.085-.053-.083-.053-.08-.054-.077-.054v4.153zm8.74-8.179l-.257.004-.254.005-.25.008-.247.011-.244.012-.241.014-.237.016-.233.018-.231.021-.226.022-.224.023-.22.026-.216.027-.212.028-.21.031-.205.032-.202.033-.198.034-.194.036-.191.038-.187.038-.183.04-.179.041-.175.042-.172.043-.168.043-.163.045-.16.046-.155.046-.152.048-.148.048-.143.048-.139.049-.136.05-.131.05-.126.051-.123.051-.118.051-.114.052-.11.052-.106.052-.101.052-.096.052-.092.052-.088.052-.083.052-.079.052-.074.051-.07.052-.065.051-.06.05-.056.05-.051.05-.023.025-.023.024-.021.024-.02.025-.019.024-.018.024-.017.023-.015.024-.014.023-.013.023-.012.023-.01.023-.01.022-.008.022-.006.023-.006.021-.004.022-.004.021-.001.021-.001.021.001.021.001.021.004.021.004.022.006.021.006.023.008.022.01.022.01.023.012.023.013.023.014.023.015.024.017.023.018.024.019.024.02.025.021.024.023.024.023.025.051.05.056.05.06.05.065.051.07.052.074.051.079.052.083.052.088.052.092.052.096.052.101.052.106.052.11.052.114.052.118.051.123.051.126.051.131.05.136.05.139.049.143.048.148.048.152.048.155.046.16.046.163.045.168.043.172.043.175.042.179.041.183.04.187.038.191.038.194.036.198.034.202.033.205.032.21.031.212.028.216.027.22.026.224.023.226.022.231.021.233.018.237.016.241.014.244.012.247.011.25.008.254.005.257.004.26.001.26-.001.257-.004.254-.005.25-.008.247-.011.244-.012.241-.014.237-.016.233-.018.231-.021.226-.022.224-.023.22-.026.216-.027.212-.028.21-.031.205-.032.202-.033.198-.034.194-.036.191-.038.187-.038.183-.04.179-.041.175-.042.172-.043.168-.043.163-.045.16-.046.155-.046.152-.048.148-.048.143-.048.139-.049.136-.05.131-.05.126-.051.123-.051.118-.051.114-.052.11-.052.106-.052.101-.052.096-.052.092-.052.088-.052.083-.052.079-.052.074-.051.07-.052.065-.051.06-.05.056-.05.051-.05.023-.025.023-.024.021-.024.02-.025.019-.024.018-.024.017-.023.015-.024.014-.023.013-.023.012-.023.01-.023.01-.022.008-.022.006-.023.006-.021.004-.022.004-.021.001-.021.001-.021-.001-.021-.001-.021-.004-.021-.004-.022-.006-.021-.006-.023-.008-.022-.01-.022-.01-.023-.012-.023-.013-.023-.014-.023-.015-.024-.017-.023-.018-.024-.019-.024-.02-.025-.021-.024-.023-.024-.023-.025-.051-.05-.056-.05-.06-.05-.065-.051-.07-.052-.074-.051-.079-.052-.083-.052-.088-.052-.092-.052-.096-.052-.101-.052-.106-.052-.11-.052-.114-.052-.118-.051-.123-.051-.126-.051-.131-.05-.136-.05-.139-.049-.143-.048-.148-.048-.152-.048-.155-.046-.16-.046-.163-.045-.168-.043-.172-.043-.175-.042-.179-.041-.183-.04-.187-.038-.191-.038-.194-.036-.198-.034-.202-.033-.205-.032-.21-.031-.212-.028-.216-.027-.22-.026-.224-.023-.226-.022-.231-.021-.233-.018-.237-.016-.241-.014-.244-.012-.247-.011-.25-.008-.254-.005-.257-.004-.26-.001-.26.001z"/></symbol></defs><defs><symbol id="my-svg-clock" width="24" height="24"><path transform="scale(.5)" d="M12 2c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm5.848 12.459c.202.038.202.333.001.372-1.907.361-6.045 1.111-6.547 1.111-.719 0-1.301-.582-1.301-1.301 0-.512.77-5.447 1.125-7.445.034-.192.312-.181.343.014l.985 6.238 5.394 1.011z"/></symbol></defs><defs><marker id="my-svg-arrowhead" refX="7.9" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto-start-reverse"><path d="M -1 0 L 10 5 L 0 10 z"/></marker></defs><defs><marker id="my-svg-crosshead" markerWidth="15" markerHeight="8" orient="auto" refX="4" refY="4.5"><path fill="none" stroke="#000000" stroke-width="1pt" d="M 1,2 L 6,7 M 6,2 L 1,7" style="stroke-dasharray: 0, 0;"/></marker></defs><defs><marker id="my-svg-filled-head" refX="15.5" refY="7" markerWidth="20" markerHeight="28" orient="auto"><path d="M 18,7 L9,13 L14,7 L9,1 Z"/></marker></defs><defs><marker id="my-svg-sequencenumber" refX="15" refY="15" markerWidth="60" markerHeight="40" orient="auto"><circle cx="15" cy="15" r="6"/></marker></defs><defs><marker id="my-svg-solidTopArrowHead" refX="7.9" refY="7.25" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto-start-reverse"><path d="M 0 0 L 10 8 L 0 8 z"/></marker></defs><defs><marker id="my-svg-solidBottomArrowHead" refX="7.9" refY="0.75" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto-start-reverse"><path d="M 0 0 L 10 0 L 0 8 z"/></marker></defs><defs><marker id="my-svg-stickTopArrowHead" refX="7.5" refY="7" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto-start-reverse"><path d="M 0 0 L 7 7" stroke="black" stroke-width="1.5" fill="none"/></marker></defs><defs><marker id="my-svg-stickBottomArrowHead" refX="7.5" refY="0" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto-start-reverse"><path d="M 0 7 L 7 0" stroke="black" stroke-width="1.5" fill="none"/></marker></defs><text x="201" y="80" text-anchor="middle" dominant-baseline="middle" alignment-baseline="middle" class="messageText" dy="1em" style="font-size: 16px; font-weight: 400;">global model w(t)</text><line x1="76" y1="111" x2="325" y2="111" class="messageLine0" data-et="message" data-id="i0" data-from="S" data-to="A" stroke-width="2" stroke="none" marker-end="url(#my-svg-arrowhead)" style="fill: none;"/><text x="309" y="126" text-anchor="middle" dominant-baseline="middle" alignment-baseline="middle" class="messageText" dy="1em" style="font-size: 16px; font-weight: 400;">global model w(t)</text><line x1="76" y1="157" x2="542.5" y2="157" class="messageLine0" data-et="message" data-id="i1" data-from="S" data-to="B" stroke-width="2" stroke="none" marker-end="url(#my-svg-arrowhead)" style="fill: none;"/><text x="330" y="172" text-anchor="middle" dominant-baseline="middle" alignment-baseline="middle" class="messageText" dy="1em" style="font-size: 16px; font-weight: 400;">train 25 mini-batches on own data</text><path d="M 330,201 C 390,191 390,231 330,221" class="messageLine0" data-et="message" data-id="i2" data-from="A" data-to="A" stroke-width="2" stroke="none" marker-end="url(#my-svg-arrowhead)" style="fill: none;"/><text x="548" y="246" text-anchor="middle" dominant-baseline="middle" alignment-baseline="middle" class="messageText" dy="1em" style="font-size: 16px; font-weight: 400;">train 25 mini-batches on own data</text><path d="M 547.5,275 C 607.5,265 607.5,305 547.5,295" class="messageLine0" data-et="message" data-id="i3" data-from="B" data-to="B" stroke-width="2" stroke="none" marker-end="url(#my-svg-arrowhead)" style="fill: none;"/><text x="330" y="320" text-anchor="middle" dominant-baseline="middle" alignment-baseline="middle" class="messageText" dy="1em" style="font-size: 16px; font-weight: 400;">Δ = w_A − w(t), clip, + noise (optional), + masks</text><path d="M 330,351 C 390,341 390,381 330,371" class="messageLine0" data-et="message" data-id="i4" data-from="A" data-to="A" stroke-width="2" stroke="none" marker-end="url(#my-svg-arrowhead)" style="fill: none;"/><text x="548" y="396" text-anchor="middle" dominant-baseline="middle" alignment-baseline="middle" class="messageText" dy="1em" style="font-size: 16px; font-weight: 400;">Δ = w_B − w(t), clip, + noise (optional), − masks</text><path d="M 547.5,427 C 607.5,417 607.5,457 547.5,447" class="messageLine0" data-et="message" data-id="i5" data-from="B" data-to="B" stroke-width="2" stroke="none" marker-end="url(#my-svg-arrowhead)" style="fill: none;"/><text x="204" y="472" text-anchor="middle" dominant-baseline="middle" alignment-baseline="middle" class="messageText" dy="1em" style="font-size: 16px; font-weight: 400;">masked Δ_A (looks random)</text><line x1="328" y1="503" x2="79" y2="503" class="messageLine0" data-et="message" data-id="i6" data-from="A" data-to="S" stroke-width="2" stroke="none" marker-end="url(#my-svg-arrowhead)" style="fill: none;"/><text x="312" y="518" text-anchor="middle" dominant-baseline="middle" alignment-baseline="middle" class="messageText" dy="1em" style="font-size: 16px; font-weight: 400;">masked Δ_B (looks random)</text><line x1="545.5" y1="549" x2="79" y2="549" class="messageLine0" data-et="message" data-id="i7" data-from="B" data-to="S" stroke-width="2" stroke="none" marker-end="url(#my-svg-arrowhead)" style="fill: none;"/><text x="76" y="564" text-anchor="middle" dominant-baseline="middle" alignment-baseline="middle" class="messageText" dy="1em" style="font-size: 16px; font-weight: 400;">sum (masks cancel) → weighted average → w(t+1)</text><path d="M 76,595 C 136,585 136,625 76,615" class="messageLine0" data-et="message" data-id="i8" data-from="S" data-to="S" stroke-width="2" stroke="none" marker-end="url(#my-svg-arrowhead)" style="fill: none;"/></svg></div>
+
+<div class="shot"><img src="img/architecture.png"><div class="cap">Architecture screen of the web app</div></div>
+
+<h1>4. Data</h1>
+<h2>Dataset: PeMS08</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Source</td>
+<td>Caltrans Performance Measurement System, District 8 (San Bernardino, California)</td>
+</tr>
+<tr>
+<td>Sensors</td>
+<td>170 loop detectors on highways</td>
+</tr>
+<tr>
+<td>Period</td>
+<td>62 days, 1 July – 31 August 2016</td>
+</tr>
+<tr>
+<td>Resolution</td>
+<td>5 minutes (288 readings per sensor per day), 17,856 time steps</td>
+</tr>
+<tr>
+<td>Features</td>
+<td>flow (vehicles / 5 min), occupancy, speed. We forecast <strong>flow</strong>.</td>
+</tr>
+<tr>
+<td>Road graph</td>
+<td>295 sensor-to-sensor road distances (<code>distance.csv</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>It is a standard benchmark used in published traffic-forecasting papers (ASTGCN, STSGCN and others), so judges can trust it, and results are comparable.</p>
+<div class="warn">This is US highway data, because no open Indian dataset has per-sensor 5-minute flows with a road graph. The pipeline is data-agnostic: an Indian city's ATCS / ITMS controller counts or camera counts drop in with the same format (sensor × time matrix + distance list).</div>
+
+<h2>Splitting the city into zones (the federated clients)</h2>
+<ul>
+<li>We built the road graph from the distances (Gaussian kernel weights) and used <strong>spectral clustering</strong> to cut it into <strong>8 geographically connected zones</strong>. Each zone plays the role of one agency or ward.</li>
+<li>Zone sizes: 48, 44, 19, 17, 15, 13, 11, 3 sensors. They are deliberately <strong>unequal (non-IID)</strong>, like real agencies.</li>
+<li>A few sensors with no road links were attached to the zone whose traffic they correlate with most.</li>
+<li>PeMS08 has no GPS, so for the map we used <strong>classical MDS</strong> on shortest-path road distances to place sensors in 2-D. The picture is a faithful layout of the road network, not a geographic map.</li>
+</ul>
+<h2>Time split (no leakage)</h2>
+<table>
+<thead>
+<tr>
+<th>Part</th>
+<th>Days</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Train</td>
+<td>first 43 days</td>
+<td>local training on each zone</td>
+</tr>
+<tr>
+<td>Validation</td>
+<td>next 7 days</td>
+<td>learning curves, choosing settings</td>
+</tr>
+<tr>
+<td>Test</td>
+<td>last 12 days</td>
+<td>all reported numbers; never seen in training</td>
+</tr>
+</tbody>
+</table>
+<h2>Federated normalisation</h2>
+<p>Models train better on normalised data, but the mean and standard deviation of the whole city would normally need all the data. Each zone sends only <strong>three numbers</strong>: sum, sum of squares and count. The coordinator computes the global mean and std from those. No reading leaves the zone.</p>
+<h2>Input to the model</h2>
+<p>For sensor <em>s</em> at time <em>t</em>: the last <strong>12 readings</strong> (one hour), time-of-day as sin/cos, and a weekend flag. Output: flow at <strong>+5, +15, +30 and +60 minutes</strong> (4 values at once).</p>
+<h1>5. Models</h1>
+<p>We wrote both models from scratch in NumPy, including back-propagation, because PyTorch could not be installed in our build environment. That also means the federated code operates on plain arrays, which is exactly what is exchanged.</p>
+<h2>TemporalMLP (edge model, 3,236 parameters)</h2>
+<p>Input 15 features (12 lags + sin, cos, weekend) → 64 ReLU → 32 ReLU → 4 outputs. Fast; this is the model that trains live in the browser.</p>
+<h2>GRU forecaster (main model, 3,684 parameters)</h2>
+<p>A gated recurrent unit reads the 12 time steps one by one (4 features per step: flow, sin, cos, weekend), hidden size 32, then a linear layer outputs 4 horizons.</p>
+<div class="formula">z_t = σ(x_t W_z + h_{t−1} U_z + b_z)        update gate
+r_t = σ(x_t W_r + h_{t−1} U_r + b_r)        reset gate
+n_t = tanh(x_t W_n + (r_t ⊙ h_{t−1}) U_n + b_n)
+h_t = (1 − z_t) ⊙ n_t + z_t ⊙ h_{t−1}
+ŷ   = h_12 W_o + b_o     (4 horizons)</div>
+
+<ul>
+<li>Trained with back-propagation through time; the analytic gradients were <strong>checked numerically</strong> (relative error ≈ 4 × 10⁻⁷).</li>
+<li>Loss: <strong>Huber</strong> (robust to sudden spikes from incidents). Optimiser: <strong>Adam</strong>, learning rate 0.003.</li>
+</ul>
+<div class="short">Why a GRU? Traffic is a sequence; the GRU's gates decide how much of the last hour to remember. It has fewer parameters than an LSTM, which means smaller updates to send every round.</div>
+
+<h1>6. Federated learning engine</h1>
+<h2>FedAvg</h2>
+<div class="formula">w(t+1) = w(t) + Σ_k (n_k / n) · Δ_k ,   Δ_k = w_k − w(t)</div>
+
+<p>Each zone <em>k</em> trains 25 mini-batches (batch 128) from the current global model, then the server takes the sample-weighted average of the updates. 40 rounds.</p>
+<h2>FedProx</h2>
+<p>Same as FedAvg, but the local loss gets a term (μ/2)·‖w − w_global‖² that keeps local models from drifting too far when zones are very different (non-IID). We use μ = 0.01. In our data FedAvg was slightly better, which tells us the zones are not extremely heterogeneous; FedProx is kept as an option for messier real deployments.</p>
+<h2>Secure aggregation (pairwise masks)</h2>
+<p>Every pair of zones (i, j) agrees on a random vector m_ij. Zone i adds it, zone j subtracts it:</p>
+<div class="formula">sent_i = Δ_i + Σ_{j>i} m_ij − Σ_{j&lt;i} m_ji
+Σ_i sent_i = Σ_i Δ_i       (every mask appears once with + and once with −)</div>
+
+<ul>
+<li>The server sees vectors that look like noise (in our run a true update with norm 0.6 is sent with norm ≈ 870), but the <strong>sum is exact</strong>. Our code asserts that the masks cancel.</li>
+<li><strong>Network mode</strong>: the shared masks come from <strong>Diffie–Hellman key agreement</strong> (2048-bit RFC 3526 group). Each zone publishes g^a; two zones compute the same secret g^(ab) without the server learning it, then expand it with SHA-256 into the mask. This is the Bonawitz et al. (Google, 2017) protocol, simplified (no dropout recovery in network mode).</li>
+</ul>
+<h2>Differential privacy (client level)</h2>
+<ol>
+<li><strong>Clip</strong>: each zone's update is scaled down so that its L2 norm ≤ C. This bounds how much any one zone can influence the model (also stops a faulty or malicious zone).</li>
+<li><strong>Noise</strong>: Gaussian noise with std σ·C is added to the sum (distributed: each zone adds a share σC/√m, which secure aggregation hides).</li>
+<li><strong>Accounting</strong>: a Rényi-DP accountant converts (σ, rounds) into a formal (ε, δ = 10⁻⁵) guarantee. Lower ε = stronger privacy.</li>
+</ol>
+<h2>Robustness: client dropout</h2>
+<p>Every round, each zone can be offline with probability p. The round proceeds with whoever responds; weights are re-normalised. Tested up to 60%.</p>
+<h2>What actually leaves a zone</h2>
+<table>
+<thead>
+<tr>
+<th>Leaves?</th>
+<th>Item</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Never</td>
+<td>raw readings (flow, occupancy, speed), any per-vehicle data</td>
+</tr>
+<tr>
+<td>Once</td>
+<td>3 aggregate numbers for normalisation</td>
+</tr>
+<tr>
+<td>Each round</td>
+<td>one masked, clipped model update (14.7 KB)</td>
+</tr>
+</tbody>
+</table>
+<h1>7. The web app, screen by screen</h1>
+<p>Header shows only the product name <strong>FedFlow</strong> and the small line "Traffic intelligence, learned privately". Everything runs in the browser; no backend needed.</p>
+<h2>1 · Command Centre</h2>
+<div class="shot"><img src="img/command.png"><div class="cap">City command centre: live network, early warnings, zone load, city-wide demand</div></div>
+
+<ul>
+<li>Replays the 12 unseen test days for all 170 sensors with the <strong>federated GRU running in the browser</strong>.</li>
+<li>Toggle <strong>Now / +15 / +30 / +60 min</strong>: the map recolours with predicted congestion (flow relative to each sensor's normal peak, p95).</li>
+<li><strong>Early-warning feed</strong>: sensors not jammed now but predicted to exceed their normal peak in 30 minutes. This is the "so what" of forecasting.</li>
+<li>KPIs: 30-min forecast error, global model version, data shared (14.4 KB per round per zone, 0 bytes of raw data).</li>
+</ul>
+<h2>2 · Federated Studio (the wow screen)</h2>
+<div class="shot"><img src="img/studio.png"><div class="cap">Real federated training in the browser. Here each zone has only 2 days of history: federated 23.25 vs local-only 24.14 after 22 rounds.</div></div>
+
+<ul>
+<li><strong>Real training</strong> of the TemporalMLP on real PeMS08 readings (6 sensors per zone, last 14 training days) with 8 clients.</li>
+<li>Animated protocol: broadcast → local training → upload with lock icons → aggregate.</li>
+<li>Controls: FedAvg / FedProx, rounds, local steps, learning rate, <strong>history per zone</strong>, client dropout, secure aggregation, differential privacy (clip, σ, live ε).</li>
+<li>Charts: global vs local-only error per round, with the historical-average line.</li>
+<li><strong>"What the aggregator actually sees"</strong>: the real update, the masked numbers the server receives, and the exact sum.</li>
+<li>Live forecast chart that visibly improves every round.</li>
+</ul>
+<div class="tip">Drag "History per zone" down to 2 days and press Start: the federated line ends below the local-only line. That is the core argument of federated learning, shown live.</div>
+
+<h2>3 · Forecasts</h2>
+<p>Any sensor, any test day, any horizon. Overlays actual flow, the federated GRU and the zone-only GRU, with error stats.</p>
+<div class="shot"><img src="img/forecasts.png"><div class="cap">Forecast explorer: 30-minute-ahead forecast vs actual on an unseen day</div></div>
+
+<h2>4 · Signal Planner</h2>
+<p>Turns forecasts into decisions. For an illustrative junction (the 4 busiest detectors of a zone as its approaches):</p>
+<ul>
+<li>Forecast demand for the next 15 minutes → green split by <strong>Webster's method</strong> (green ∝ critical flow ratio) and cycle length (40–150 s) chosen to <strong>minimise HCM 2000 control delay</strong>.</li>
+<li>Both the adaptive plan and a fixed 120 s plan are then <strong>scored on the traffic that actually arrived</strong> (fair test).</li>
+<li>Result on the example (Zone A, 23 Aug, 06:00–22:00): <strong>about 7% less average delay</strong> than a fixed plan, with longer cycles at peaks and short cycles at night.</li>
+</ul>
+<div class="shot"><img src="img/signals.png"><div class="cap">Predictive signal planner</div></div>
+
+<div class="warn">The junction is illustrative (PeMS sensors are highway detectors, not a real 4-arm junction), and the delay comes from a standard traffic-engineering formula, not a field trial. Say this before a judge does.</div>
+
+<h2>5 · Privacy &amp; Security</h2>
+<p>What leaves a zone, a worked 3-zone secure-aggregation example, the measured privacy–accuracy chart (8 vs 35 clients) and a threat model (curious server, model inversion, malicious zone, offline zone, eavesdropping, DPDP alignment).</p>
+<h2>6 · Benchmarks</h2>
+<p>All measured results from the Python pipeline (section 8) with tables and charts.</p>
+<h2>7 · Architecture</h2>
+<p>Diagram, one federated round, technology and the roadmap.</p>
+<h1>8. Results (all measured on the 12 unseen test days)</h1>
+<h2>All methods</h2>
+<p>MAE in vehicles per 5 minutes (lower is better). Private = raw data never pooled.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Private</th>
+<th>5 min</th>
+<th>15 min</th>
+<th>30 min</th>
+<th>60 min</th>
+<th><strong>Average</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FedAvg · TemporalMLP</td>
+<td>yes</td>
+<td>13.9</td>
+<td>16.0</td>
+<td>18.2</td>
+<td>23.0</td>
+<td><strong>17.79</strong></td>
+</tr>
+<tr>
+<td><strong>FedAvg · GRU</strong> (main)</td>
+<td>yes</td>
+<td>14.0</td>
+<td>16.2</td>
+<td>18.5</td>
+<td>23.2</td>
+<td><strong>17.99</strong></td>
+</tr>
+<tr>
+<td>FedProx · TemporalMLP</td>
+<td>yes</td>
+<td>14.0</td>
+<td>16.2</td>
+<td>18.4</td>
+<td>23.4</td>
+<td>18.00</td>
+</tr>
+<tr>
+<td>Local-only · TemporalMLP</td>
+<td>yes</td>
+<td>14.5</td>
+<td>16.3</td>
+<td>18.3</td>
+<td>22.9</td>
+<td>18.00</td>
+</tr>
+<tr>
+<td>Local-only · GRU</td>
+<td>yes</td>
+<td>14.2</td>
+<td>16.5</td>
+<td>18.5</td>
+<td>22.8</td>
+<td>18.02</td>
+</tr>
+<tr>
+<td>Centralised · GRU</td>
+<td><strong>no</strong></td>
+<td>14.7</td>
+<td>16.5</td>
+<td>18.9</td>
+<td>22.8</td>
+<td>18.22</td>
+</tr>
+<tr>
+<td>FedProx · GRU</td>
+<td>yes</td>
+<td>14.3</td>
+<td>16.5</td>
+<td>18.6</td>
+<td>23.6</td>
+<td>18.23</td>
+</tr>
+<tr>
+<td>Centralised · TemporalMLP</td>
+<td><strong>no</strong></td>
+<td>15.5</td>
+<td>17.1</td>
+<td>19.1</td>
+<td>23.9</td>
+<td>18.91</td>
+</tr>
+<tr>
+<td>Historical average</td>
+<td>yes</td>
+<td>21.9</td>
+<td>22.1</td>
+<td>22.0</td>
+<td>22.0</td>
+<td>21.99</td>
+</tr>
+<tr>
+<td>Last value (persistence)</td>
+<td>yes</td>
+<td>15.9</td>
+<td>19.5</td>
+<td>24.0</td>
+<td>34.5</td>
+<td>23.50</td>
+</tr>
+</tbody>
+</table>
+<p>30-minute MAPE of the federated GRU: <strong>10.7%</strong>.</p>
+<p><strong>How to read it:</strong></p>
+<ul>
+<li>Federated beats both standard baselines clearly: <strong>18% below historical average, 23% below persistence</strong>.</li>
+<li>Federated is <strong>as good as centralised</strong> (slightly better, 17.99 vs 18.22): no accuracy is lost for privacy. Federated averaging over different zones acts like a regulariser.</li>
+<li>With the full 43 days of history, a single zone can already train a decent model alone (local-only ≈ 18.0). The federated model matches it <strong>with one shared model</strong> for the whole city. The real gains come when zones have little data, which is the normal case for new deployments (next section).</li>
+</ul>
+<div class="shot"><img src="img/convergence.png"><div class="cap">Validation error per round: converges in ~10 rounds</div></div>
+
+<h2>Where federation really pays off</h2>
+<div class="shot"><img src="img/scenarios.png"><div class="cap">Left: DP cost falls sharply with more clients. Right: with 3 days of history each zone does better federated.</div></div>
+
+<p><strong>New deployment (scarce history).</strong> Every zone has only its last few days of data.</p>
+<table>
+<thead>
+<tr>
+<th>History per zone</th>
+<th>Local-only MAE</th>
+<th>Federated MAE</th>
+<th>Error cut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3 days</td>
+<td>32.00</td>
+<td>29.23</td>
+<td><strong>8.7%</strong> (up to 19.2% in Zone C, 15.3% in Zone F)</td>
+</tr>
+<tr>
+<td>7 days</td>
+<td>18.12</td>
+<td>18.06</td>
+<td>0.3% (parity)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cold start (a zone with zero data).</strong> We trained the federated model without one zone, then tested on that zone:</p>
+<table>
+<thead>
+<tr>
+<th>Zone</th>
+<th>Day-one federated MAE (zone never trained)</th>
+<th>Zone's own model after 7 days of data</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A (48 sensors)</td>
+<td>20.82</td>
+<td>20.81</td>
+</tr>
+<tr>
+<td>B (44)</td>
+<td>17.69</td>
+<td>17.58</td>
+</tr>
+<tr>
+<td>C (19)</td>
+<td>19.41</td>
+<td>19.92</td>
+</tr>
+<tr>
+<td>D (17)</td>
+<td>16.34</td>
+<td>16.30</td>
+</tr>
+</tbody>
+</table>
+<div class="tip">A brand-new ward joins the network and on day one gets a model as accurate as the one it could only build after collecting a full week of its own data.</div>
+
+<h2>Privacy–accuracy trade-off</h2>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>σ</th>
+<th>ε (δ = 10⁻⁵)</th>
+<th>Test MAE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8 zones, clipping only</td>
+<td>0</td>
+<td>∞</td>
+<td>18.12</td>
+</tr>
+<tr>
+<td>8 zones</td>
+<td>0.3 / 0.5 / 1 / 2</td>
+<td>323 / 141 / 50 / 20</td>
+<td>23.0 / 31.5 / 64.3 / 211.7</td>
+</tr>
+<tr>
+<td>35 junction clients</td>
+<td>0</td>
+<td>∞</td>
+<td>18.43</td>
+</tr>
+<tr>
+<td>35 junction clients</td>
+<td>0.5 / 1 / 2</td>
+<td>113 / 41 / 17</td>
+<td><strong>19.1 / 21.2 / 29.3</strong></td>
+</tr>
+</tbody>
+</table>
+<div class="warn">With only 8 participants, strong formal DP destroys accuracy, because the noise is shared by very few updates. With 35 clients the same noise level costs far less (σ = 1: MAE 21.2 instead of 64.3). ε values of 20–100 are weak guarantees by academic standards. So our default is <b>secure aggregation + clipping</b>, and DP is switched on when the network grows to hundreds of junction-level clients. This honesty usually impresses judges more than an unrealistic number.</div>
+
+<h2>Robustness and communication</h2>
+<table>
+<thead>
+<tr>
+<th>Zones offline per round</th>
+<th>0%</th>
+<th>20%</th>
+<th>40%</th>
+<th>60%</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Test MAE</td>
+<td>17.99</td>
+<td>17.98</td>
+<td>18.02</td>
+<td>18.19</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Model update: <strong>14.7 KB</strong> per zone per round (3,684 float32 values).</li>
+<li>Whole training (40 rounds × 8 zones): <strong>4.7 MB uploaded vs 25.3 MB of raw data</strong> (5.4× less). Raw data grows every day; the update size stays fixed.</li>
+<li>Full experiment suite: about 10 minutes on a laptop CPU, no GPU.</li>
+</ul>
+<h1>9. Cheat-sheet: numbers to have on your tongue</h1>
+<table>
+<thead>
+<tr>
+<th>Ask</th>
+<th>Answer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dataset</td>
+<td>PeMS08: 170 sensors, 62 days, 5-min, Jul–Aug 2016</td>
+</tr>
+<tr>
+<td>Clients</td>
+<td>8 zones by spectral clustering (48/44/19/17/15/13/11/3 sensors)</td>
+</tr>
+<tr>
+<td>Split</td>
+<td>43 train / 7 val / 12 test days</td>
+</tr>
+<tr>
+<td>Model</td>
+<td>GRU, hidden 32, 3,684 params; MLP 3,236 params</td>
+</tr>
+<tr>
+<td>Horizons</td>
+<td>5, 15, 30, 60 minutes from the last 60 minutes</td>
+</tr>
+<tr>
+<td>Training</td>
+<td>40 rounds × 25 local steps, batch 128, Adam 0.003, Huber</td>
+</tr>
+<tr>
+<td>Main result</td>
+<td>FedAvg GRU 17.99 MAE, 30-min MAPE 10.7%</td>
+</tr>
+<tr>
+<td>vs baselines</td>
+<td>−18% vs historical average (21.99), −23% vs persistence (23.50)</td>
+</tr>
+<tr>
+<td>vs centralised</td>
+<td>17.99 vs 18.22: no loss for privacy</td>
+</tr>
+<tr>
+<td>Scarce data</td>
+<td>3 days: 32.00 → 29.23 (−8.7%), up to −19% per zone</td>
+</tr>
+<tr>
+<td>Cold start</td>
+<td>zero-data zone ≈ its own 7-day model</td>
+</tr>
+<tr>
+<td>DP</td>
+<td>35 clients, σ = 1, ε ≈ 41: MAE 21.2</td>
+</tr>
+<tr>
+<td>Dropout</td>
+<td>60% offline: 18.19</td>
+</tr>
+<tr>
+<td>Comms</td>
+<td>14.7 KB per update; 5.4× less than raw</td>
+</tr>
+<tr>
+<td>Signals</td>
+<td>≈7% less delay vs fixed 120 s plan (illustrative)</td>
+</tr>
+</tbody>
+</table>
+<h1>10. Demo script (7–8 minutes)</h1>
+<p>Have the app open full-screen <strong>before</strong> you are called, on the Command Centre, at 100% zoom. Keep a second tab on Benchmarks.</p>
+<table>
+<thead>
+<tr>
+<th>Time</th>
+<th>Screen</th>
+<th>What to do</th>
+<th>What to say</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0:00</td>
+<td>(no slide)</td>
+<td>Face the judges</td>
+<td>The 60-second pitch from §1.</td>
+</tr>
+<tr>
+<td>1:00</td>
+<td>Command Centre</td>
+<td>Press Play; switch Now → +30 min</td>
+<td>"This is 170 real sensors on days the model never saw. Every forecast you see comes from one model that no agency had to share data for. Switch to +30 min: these red nodes are jams we predict half an hour early." Point at the early-warning feed.</td>
+</tr>
+<tr>
+<td>2:00</td>
+<td>Federated Studio</td>
+<td>Set History to 2 days, 4×, Start</td>
+<td>"This is not a video. Eight zone clients are training right now in this browser on real data. Watch the protocol: broadcast, local training, encrypted upload, aggregation."</td>
+</tr>
+<tr>
+<td>3:00</td>
+<td>Studio, aggregator panel</td>
+<td>Click Zone A in the table</td>
+<td>"Here is what the server receives from Zone A: these amber numbers are random-looking, the real update is in green, and only the sum, in blue, is exact. The server cannot read any single zone." Point at the accuracy chart: federated below local-only.</td>
+</tr>
+<tr>
+<td>4:00</td>
+<td>Studio, DP toggle</td>
+<td>Turn DP on, show ε</td>
+<td>"We also support formal differential privacy, with an accountant that tells you exactly how much privacy is spent."</td>
+</tr>
+<tr>
+<td>4:30</td>
+<td>Forecasts</td>
+<td>Pick a busy sensor, 30 min</td>
+<td>"Forecast vs actual on an unseen day; federated vs a zone training alone."</td>
+</tr>
+<tr>
+<td>5:15</td>
+<td>Signal Planner</td>
+<td>Move time slider over the morning peak</td>
+<td>"Forecasts become decisions: cycle and green split adapt before the queue builds; about 7% less delay than a fixed plan in this example."</td>
+</tr>
+<tr>
+<td>6:00</td>
+<td>Benchmarks</td>
+<td>Scroll the table, then the scarce-data card</td>
+<td>"Measured on 12 unseen days: 18% better than historical average, equal to centralised. And where it matters most, new zones with 3 days of data, up to 19% lower error; a zone with no data gets a week-quality model on day one."</td>
+</tr>
+<tr>
+<td>7:00</td>
+<td>Architecture</td>
+<td></td>
+<td>"It runs today as a static site and as a real client–server system over the network with Diffie–Hellman secure aggregation. Next: a pilot with 3–5 agencies in Pune or Mumbai." Thank the judges.</td>
+</tr>
+</tbody>
+</table>
+<h2>Optional live network demo (if they ask "is it really distributed?")</h2>
+<p>On your laptop: <code>cd ml &amp;&amp; ./demo_network.sh</code> (1 coordinator + 3 zone processes). Or on two laptops on the same hotspot:</p>
+<pre><code>laptop 1:  python3 server.py --clients 2 --rounds 10
+laptop 2:  python3 client.py --server http://&lt;laptop-1-ip&gt;:8000 --zone 0
+laptop 1:  python3 client.py --server http://127.0.0.1:8000 --zone 1
+</code></pre>
+<p>The server log prints every masked update (random-looking numbers) and the aggregated norm; each client prints its true update size vs what it sent and, at the end, its test MAE.</p>
+<h2>Backup plan</h2>
+<ul>
+<li>No Wi-Fi needed: run <code>npm run preview</code> or open the built <code>dist</code> with any static server; fonts are bundled.</li>
+<li>Keep the live URL and the PDF on your phone. Keep screenshots (this book) as a last resort.</li>
+<li>If the Studio is slow on a weak laptop, use speed 1× and fewer local steps.</li>
+</ul>
+<h1>11. Judge Q&amp;A (prepared answers)</h1>
+<h2>About federated learning</h2>
+<p><strong>Q: Why not just send all data to a central server?</strong> Ownership, law (DPDP Act: data minimisation), security (one honeypot of city movement), and politics: agencies refuse. We showed it costs no accuracy: federated 17.99 vs centralised 18.22.</p>
+<p><strong>Q: Can't the server reverse-engineer the data from the updates?</strong> Updates can leak information, which is why we add secure aggregation (the server sees only the sum) and optional differential privacy with clipping and noise, with a formal ε from an RDP accountant.</p>
+<p><strong>Q: What if a zone sends a bad or malicious update?</strong> Clipping bounds any zone's influence. Roadmap: robust aggregation (coordinate-wise median / trimmed mean) and per-zone validation before accepting a new global model; the registry allows rollback.</p>
+<p><strong>Q: What if a zone goes offline?</strong> The round continues with responding zones. Measured: 60% offline only moves MAE from 17.99 to 18.19. (Network mode currently waits for all registered zones; production secure aggregation uses secret-shared mask recovery for dropouts, as in Bonawitz et al.)</p>
+<p><strong>Q: FedAvg vs FedProx: why both?</strong> FedProx stabilises training when clients are very different. On our zones FedAvg was slightly better, meaning heterogeneity is moderate; we keep FedProx for messier real data.</p>
+<p><strong>Q: Your local-only model is almost as good. So why federate?</strong> With full history, yes, and that is an honest finding. But (1) one shared model instead of eight to maintain, (2) with scarce data federation cuts error up to 19%, (3) a new zone gets a good model on day one, (4) every zone benefits from patterns it never saw (events, incidents elsewhere).</p>
+<p><strong>Q: Your ε values are large. Is that real privacy?</strong> Large ε is a weak formal guarantee, and we say so. With only 8 clients, strong DP is not practical; that is a known result. The trend we measured (35 clients: σ = 1 costs 21.2 vs 64.3 MAE) shows DP becomes viable at junction scale. Our default protection is secure aggregation + clipping.</p>
+<p><strong>Q: How is secure aggregation done in practice?</strong> Pairwise masks derived from Diffie–Hellman shared secrets (implemented in <code>client.py</code> with the 2048-bit RFC 3526 group and SHA-256), the same idea as Google's protocol used in Gboard.</p>
+<h2>About the model and data</h2>
+<p><strong>Q: Why GRU and not a Graph Neural Network / Transformer?</strong> Small, fast to send (14.7 KB), trains on CPUs at zone servers, and very competitive at these horizons. Spatio-temporal GNNs (e.g. ASTGCN, Graph WaveNet) are on our roadmap; in federated settings they need cross-zone graph information, which is an open research problem.</p>
+<p><strong>Q: Why MAE?</strong> It is in vehicles per 5 minutes, so a traffic engineer understands it directly. We also report RMSE and MAPE.</p>
+<p><strong>Q: How do you avoid data leakage?</strong> Strict time split: test days are the last 12 days, never used in training or tuning; normalisation uses only training data.</p>
+<p><strong>Q: Why is PeMS (US) relevant for India?</strong> It is the standard open benchmark with a road graph; Indian open data at this granularity does not exist publicly. The pipeline only needs a sensor × time matrix and a distance list, which ATCS / ITMS systems (e.g. Pune, Mumbai) already produce.</p>
+<p><strong>Q: Indian traffic is heterogeneous (two-wheelers, autos). Does that matter?</strong> Counts would be in PCU (passenger car units) from cameras; the model learns from whatever unit is supplied. Fine-tuning per city is natural in FL (personalised FL is on the roadmap).</p>
+<p><strong>Q: Did you use a library like Flower or PySyft?</strong> No. We implemented FedAvg, FedProx, secure aggregation and DP ourselves, and even the GRU back-propagation, so we understand and can explain every line. Flower would be the production transport layer.</p>
+<p><strong>Q: How long does training take?</strong> All experiments: about 10 minutes on a laptop CPU. A round in network mode takes well under a second per zone.</p>
+<h2>About impact and deployment</h2>
+<p><strong>Q: Who would use this?</strong> City traffic control rooms (smart-city ICCCs), traffic police, highway authorities, toll operators, navigation providers who want to collaborate without sharing data.</p>
+<p><strong>Q: Hardware needed?</strong> One modest server per agency (or a Raspberry-Pi-class box per junction for the small model) and one coordinator in a government cloud. No GPU.</p>
+<p><strong>Q: How do the signals actually change?</strong> The planner outputs cycle length and green split per 15-min window; controllers with adaptive interfaces (e.g. ATCS) accept such plans. Our numbers are from a traffic-engineering formula, not a field trial.</p>
+<p><strong>Q: What is novel here?</strong> An end-to-end system rather than a model: private multi-agency training (SecAgg + DP + dropout) on real data, live in-browser federated training, cold-start and scarce-data evidence, and a direct path from forecast to signal decision.</p>
+<p><strong>Q: Business / adoption model?</strong> Open-source core; pilot with a smart-city SPV; cost is one coordinator VM plus the agencies' existing servers.</p>
+<h1>12. Honest limitations and roadmap</h1>
+<table>
+<thead>
+<tr>
+<th>Limitation</th>
+<th>What we would do next</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>US highway data, not Indian urban data</td>
+<td>Pilot with Pune / Mumbai ATCS counts or camera PCU counts</td>
+</tr>
+<tr>
+<td>Model sees only its own sensor's history</td>
+<td>Spatio-temporal GNN; neighbour features shared securely</td>
+</tr>
+<tr>
+<td>Network mode needs all zones each round</td>
+<td>Secret-shared mask recovery (full Bonawitz protocol), TLS + auth tokens</td>
+</tr>
+<tr>
+<td>Strong DP not practical with 8 clients</td>
+<td>Junction-level clients (100s), better accounting (subsampling)</td>
+</tr>
+<tr>
+<td>Signal planner illustrative</td>
+<td>Junction geometry, turning counts, closed-loop control with SUMO simulation, then field trial</td>
+</tr>
+<tr>
+<td>No attack testing</td>
+<td>Robust aggregation, poisoning tests</td>
+</tr>
+</tbody>
+</table>
+<h1>13. How we built it</h1>
+<ol>
+<li><strong>Problem framing</strong>: chose a public, citable dataset with a road graph (PeMS08) and defined zones as agencies.</li>
+<li><strong>Data pipeline</strong>: loading, graph, spectral zones, MDS layout, windows, federated normalisation.</li>
+<li><strong>Models from scratch</strong>: MLP and GRU in NumPy with gradient checks, because PyTorch was unavailable; this also kept everything transparent.</li>
+<li><strong>FL engine</strong>: FedAvg → FedProx → secure aggregation (with a mask-cancellation assert) → DP + RDP accountant → dropout.</li>
+<li><strong>Experiments</strong>: baselines, per-zone, convergence, privacy sweep, dropout, communication; then scarce-data, cold-start and DP-at-scale scenarios.</li>
+<li><strong>Export</strong>: compact assets for the browser (flows as 16-bit integers, GRU weights as JSON).</li>
+<li><strong>Web app</strong>: React + TypeScript; ported the MLP, Adam and FedAvg to TypeScript for live training; GRU inference in the browser.</li>
+<li><strong>Network mode</strong>: HTTP coordinator and clients with Diffie–Hellman masks.</li>
+<li><strong>Polish</strong>: offline fonts, static build, screenshots, this book.</li>
+</ol>
+<h2>Repository map</h2>
+<pre><code>fedtraffic/
+  ml/
+    fedflow/data.py        PeMS loader, graph, zones, windows
+    fedflow/models.py      TemporalMLP, GRU (forward + backward), Adam, Huber
+    fedflow/fl.py          clients, FedAvg/FedProx, SecAgg, DP, accountant, baselines
+    run_experiments.py     all benchmarks -&gt; results/ and web/public/data/
+    run_scenarios.py       scarce data, cold start, DP at scale
+    server.py, client.py   networked FL over HTTP (+ demo_network.sh)
+  web/
+    src/engine/            data loading, models, federated simulator, forecasts (TypeScript)
+    src/pages/             the 7 screens
+    public/data/           exported assets
+  docs/                    this book
+</code></pre>
+<h1>14. How to get it live</h1>
+<h2>Run locally (offline, for the venue)</h2>
+<pre><code># once, with internet: install Node.js 20+ from nodejs.org
+cd fedtraffic/web
+npm install
+npm run dev          # development, opens http://localhost:5173
+# or the production build:
+npm run build
+npm run preview      # http://localhost:4173
+</code></pre>
+<h2>Option A: Vercel (recommended, 3 minutes)</h2>
+<ol>
+<li>Create a GitHub repository and push the <code>fedtraffic</code> folder.</li>
+<li>Go to vercel.com → sign in with GitHub → <strong>Add New → Project</strong> → import the repository.</li>
+<li>Set <strong>Root Directory</strong> to <code>web</code>. Framework preset: <strong>Vite</strong> (build <code>npm run build</code>, output <code>dist</code>).</li>
+<li>Deploy. You get a link like <code>fedflow.vercel.app</code>. Every push redeploys.</li>
+</ol>
+<h2>Option B: Netlify drag-and-drop (no Git needed)</h2>
+<ol>
+<li><code>cd web &amp;&amp; npm run build</code>.</li>
+<li>Open app.netlify.com/drop and drag the <code>web/dist</code> folder onto the page.</li>
+<li>You get a live link immediately; rename the site to <code>fedflow-…</code> in site settings.</li>
+</ol>
+<h2>Option C: GitHub Pages</h2>
+<ol>
+<li><code>cd web &amp;&amp; npm run build</code>.</li>
+<li>Push <code>dist</code> contents to a <code>gh-pages</code> branch (or use the "Deploy static content" GitHub Action with path <code>web/dist</code>).</li>
+<li>Settings → Pages → source: <code>gh-pages</code>. The app uses relative paths (<code>base: './'</code>), so it works under <code>/&lt;repo&gt;/</code>.</li>
+</ol>
+<h2>Running the Python side</h2>
+<pre><code>cd fedtraffic/ml
+pip install -r requirements.txt
+python3 run_experiments.py      # ~10 min: benchmarks + web assets
+python3 run_scenarios.py        # ~10 min: scarce / cold start / DP at scale
+./demo_network.sh               # networked FL demo on one laptop
+</code></pre>
+<h2>Going to production (what to tell judges)</h2>
+<p>Coordinator on a government cloud VM (MeghRaj / NIC) behind HTTPS; each agency runs <code>client.py</code> (or a Docker container) next to its data; per-client keys; the dashboard stays a static site served from a CDN.</p></main></body></html>
